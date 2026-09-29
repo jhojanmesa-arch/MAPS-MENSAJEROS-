@@ -224,6 +224,14 @@ body.con-card .sheet,body.editando .sheet{display:none}
 .toast{position:fixed;z-index:1100;left:50%;top:calc(var(--top-h) + 16px);transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--blk);color:#fff;font-size:13px;font-weight:700;padding:10px 16px;border-radius:12px;box-shadow:var(--sh);transition:all .25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .toast.ok{background:var(--green)} .toast.err{background:var(--red)}
+/* ---------- cargar desde Bukapp ---------- */
+.bk-txt{width:100%;height:150px;border:1.5px solid var(--g200);border-radius:12px;padding:10px;font-size:13px;resize:vertical;font-family:inherit}
+.bk-lista{max-height:42vh;overflow-y:auto;margin:8px 0;border:1px solid var(--g100);border-radius:12px}
+.bk-it{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-bottom:1px solid var(--g100);font-size:12.5px;line-height:1.35}
+.bk-it:last-child{border-bottom:none}
+.bk-it b{font-weight:800}
+.bk-it .bk-d{color:var(--g600)}
+.bk-it .ch{margin-left:auto;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -316,6 +324,7 @@ body.con-card .sheet,body.editando .sheet{display:none}
       <div class="caja-tit" id="mm-nom"></div>
       <div class="menu-quien" id="mm-quien"></div>
       <button class="menu-it" id="mm-act" type="button">Actualizar</button>
+      <button class="menu-it hidden" id="mm-bukapp" type="button">Cargar pedidos de Bukapp</button>
       <button class="menu-it hidden" id="mm-zonas" type="button">Editar zonas</button>
       <button class="menu-it rojo" id="mm-salir" type="button">Salir</button>
       <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cerrar</button></div>
@@ -331,6 +340,22 @@ body.con-card .sheet,body.editando .sheet{display:none}
       <label class="opc"><input type="checkbox" id="r-volver"><span>Terminar en la bodega</span></label>
       <div class="caja-nota">Solo entran las paradas pendientes que tienen ubicación. Google calcula en carro: en moto suele ser algo más rápido.</div>
       <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cancelar</button><button class="btn primary" id="r-go" type="button">Calcular ruta</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="velo hidden" id="m-bukapp">
+  <div class="caja">
+    <div class="caja-tit">Cargar pedidos de Bukapp</div>
+    <div id="bk-paso1">
+      <div class="caja-nota">En Bukapp: <b>Logística › Despachos › Por despachar</b>, filtro <b>Mensajeros</b>. Selecciona toda la página (Ctrl+A), cópiala (Ctrl+C) y pégala aquí. Los pedidos quedan libres: los toma el mensajero que los busque por número.</div>
+      <textarea id="bk-txt" class="bk-txt" placeholder="Pega aquí la lista de Bukapp…"></textarea>
+      <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cancelar</button><button class="btn primary" id="bk-revisar" type="button">Revisar</button></div>
+    </div>
+    <div id="bk-paso2" class="hidden">
+      <div class="caja-nota" id="bk-resumen"></div>
+      <div class="bk-lista" id="bk-lista"></div>
+      <div class="caja-acts"><button class="btn soft" id="bk-atras" type="button">Atrás</button><button class="btn primary" id="bk-cargar" type="button">Cargar</button></div>
     </div>
   </div>
 </div>
@@ -1210,6 +1235,7 @@ function arrancar(r) {
   $('#user-ava').textContent = iniciales(S.usuario.nombre); $('#user-nom').textContent = S.usuario.nombre;
   $('#bar-fecha').textContent = fechaLarga();
   $('#mm-zonas').classList.toggle('hidden', !esAdmin());
+  $('#mm-bukapp').classList.toggle('hidden', !esAdmin());
   $('#q').placeholder = esAdmin() ? 'Dirección o pedido: ¿de qué zona es?' : 'N° de pedido o dirección';
   S.municipio = lsGet('municipio', 'Medellín');
   renderMunicipios();
@@ -1237,6 +1263,84 @@ function salir(vencida) {
   if (S.editZonas) salirZonas();
   cargarLogin();
   if (vencida) setTimeout(() => toast('Tu sesión se venció. Entra de nuevo.'), 200);
+}
+
+// ---------------- cargar desde Bukapp (copiar y pegar la lista de Despachos) ----------------
+// Cada tarjeta de Bukapp, copiada como texto, queda así:
+//   Pedido #66061 / Envío asociado · 2 / Flujo ✓ / . SURTIMOS COSMÉTICOS /
+//   Medellín, Antioquia · CARRERA 54 # 46-71 GUAYAQUIL LOCAL 527 / 3004675257 / 19 item(s) · 1134 unidad(es) ...
+const BK_RUIDO = /^(env[ií]o asociado|flujo|prioridad|urgente|falta el peso|mensajeros?$|gu[ií]a$|r[oó]tulo$|marcar despachado|\d+\s*item|[\d.,]+\s*kg$|seleccionar|por despachar|despachad)/i;
+function parsearBukapp(texto) {
+  const partes = String(texto || '').split(/Pedido\s*#\s*(\d{3,9})/i), out = [], vistos = {};
+  for (let i = 1; i < partes.length; i += 2) {
+    const num = partes[i], lineas = String(partes[i + 1] || '').split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    let cliente = '', municipio = '', direccion = '';
+    for (const l of lineas) {
+      const m = !BK_RUIDO.test(l) && l.match(/^([^·,]{2,40}),\s*([^·]{2,40}?)\s*·\s*(.{4,})$/);
+      if (m) { municipio = m[1].trim(); direccion = m[3].trim(); break; }
+      if (!cliente && !BK_RUIDO.test(l) && !/^[+\d\s()-]{7,}$/.test(l)) cliente = l.replace(/^[.\s·-]+/, '').trim();
+    }
+    if (vistos[num]) continue;   // el mismo pedido puede salir dos veces (envío asociado)
+    vistos[num] = 1;
+    out.push({ pedido: num, cliente: cliente, municipio: municipio, direccion: direccion });
+  }
+  return out;
+}
+function abrirBukapp() {
+  cerrarModales();
+  $('#bk-paso1').classList.remove('hidden'); $('#bk-paso2').classList.add('hidden');
+  $('#m-bukapp').classList.remove('hidden');
+  setTimeout(() => $('#bk-txt').focus(), 100);
+}
+function itemBukapp(p, r) {
+  let chip = '';
+  if (!p.direccion) chip = '<span class="ch fuera">Sin dirección</span>';
+  else if (r) {
+    if (r.estado === 'ya_estaba') chip = '<span class="ch">Ya estaba' + (r.mensajero && r.mensajero !== '?' ? ' · ' + esc(nombreDe(r.mensajero)) : '') + '</span>';
+    else if (r.estado === 'pendiente') chip = '<span class="ch lim">Falta</span>';
+    else if (r.zonaDe) chip = '<span class="ch ' + (r.veredicto === 'limite' ? 'lim' : 'ok') + '">Zona ' + esc(nombreDe(r.zonaDe)) + (r.veredicto === 'limite' ? ' · límite' : '') + '</span>';
+    else chip = '<span class="ch fuera">' + (r.veredicto === 'fuera' ? 'Fuera de zona' : 'Sin ubicar') + '</span>';
+  }
+  return '<div class="bk-it"><div><b>#' + esc(p.pedido) + '</b> · ' + esc(p.cliente || 'sin nombre') +
+    '<div class="bk-d">' + esc(p.direccion || '—') + (p.municipio ? ' · ' + esc(p.municipio) : '') + '</div></div>' + chip + '</div>';
+}
+function revisarBukapp() {
+  const lista = parsearBukapp($('#bk-txt').value);
+  if (!lista.length) { toast('No encontré pedidos en lo que pegaste. Copia la página de Despachos completa (Ctrl+A, Ctrl+C).', 'err'); return; }
+  S.bk = lista;
+  const sinDir = lista.filter((p) => !p.direccion).length;
+  $('#bk-resumen').innerHTML = '<b>' + lista.length + ' pedidos</b> encontrados' + (sinDir ? ' · <span style="color:var(--red)">' + sinDir + ' sin dirección (no se cargan)</span>' : '') + '. Revisa y dale «Cargar».';
+  $('#bk-lista').innerHTML = lista.map((p) => itemBukapp(p)).join('');
+  $('#bk-cargar').disabled = !(lista.length - sinDir); $('#bk-cargar').textContent = 'Cargar ' + (lista.length - sinDir);
+  $('#bk-paso1').classList.add('hidden'); $('#bk-paso2').classList.remove('hidden');
+}
+// Se manda en tandas de 15; los que ya quedaron vuelven como «ya estaba», así que reintentar es seguro.
+async function cargarBukapp() {
+  const todos = S.bk || [], enviar = todos.filter((p) => p.direccion), res = {};
+  if (!enviar.length) return;
+  $('#bk-cargar').disabled = true;
+  let pend = enviar.slice(), vueltas = 0;
+  try {
+    while (pend.length && vueltas++ < 12) {
+      const tanda = pend.slice(0, 15);
+      ocupado(true, 'Ubicando pedidos… ' + (enviar.length - pend.length) + ' de ' + enviar.length);
+      const r = await api('cargarPedidos', { pedidos: tanda }, 'bk' + Date.now().toString(36) + vueltas);
+      if (!r.ok) throw new Error(r.error);
+      const hechos = {};
+      r.resultados.forEach((x) => { res[x.pedido] = x; if (x.estado !== 'pendiente') hechos[x.pedido] = 1; });
+      pend = pend.filter((p) => !hechos[p.pedido]);
+      if (!Object.keys(hechos).length) break;
+    }
+  } catch (e) { toast('No se pudo cargar: ' + e.message, 'err'); }
+  ocupado(false);
+  $('#bk-lista').innerHTML = todos.map((p) => itemBukapp(p, res[p.pedido])).join('');
+  const vals = Object.values(res), cargados = vals.filter((x) => x.estado === 'cargado');
+  const sinZ = cargados.filter((x) => !x.zonaDe).length, ya = vals.filter((x) => x.estado === 'ya_estaba').length;
+  $('#bk-resumen').innerHTML = '<b>' + cargados.length + ' cargados</b>' + (ya ? ' · ' + ya + ' ya estaban' : '') +
+    (sinZ ? ' · <span style="color:var(--red)">' + sinZ + ' fuera de zona o sin ubicar</span>' : '') +
+    (pend.length ? ' · ' + pend.length + ' faltan: dale «Cargar» otra vez' : '') +
+    '. Quedan libres: el mensajero que los lleve escribe el número y le sale la dirección.';
+  $('#bk-cargar').disabled = !pend.length; $('#bk-cargar').textContent = pend.length ? 'Cargar los que faltan' : 'Listo';
 }
 
 function cerrarModales() { $$('.velo').forEach((v) => v.classList.add('hidden')); }
@@ -1297,6 +1401,10 @@ function conectarEventos() {
   });
   $('#mm-act').addEventListener('click', () => { cerrarModales(); refrescar(false); });
   $('#mm-zonas').addEventListener('click', editarZonas);
+  $('#mm-bukapp').addEventListener('click', abrirBukapp);
+  $('#bk-revisar').addEventListener('click', revisarBukapp);
+  $('#bk-atras').addEventListener('click', () => { $('#bk-paso2').classList.add('hidden'); $('#bk-paso1').classList.remove('hidden'); });
+  $('#bk-cargar').addEventListener('click', cargarBukapp);
   $('#mm-salir').addEventListener('click', () => { if (confirm('¿Cerrar sesión en este celular?')) salir(false); });
   $$('.velo').forEach((v) => v.addEventListener('click', (e) => { if (e.target === v || e.target.closest('[data-cerrar]')) v.classList.add('hidden'); }));
 
