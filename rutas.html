@@ -255,6 +255,13 @@ body.navegando .top,body.navegando .sheet,body.navegando #card,body.navegando .f
 .btn.pulso{background:var(--green);animation:pulso 1.2s infinite}
 @keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(15,110,86,.5)}50%{box-shadow:0 0 0 8px rgba(15,110,86,0)}}
 .gps-flecha{width:40px;height:40px;transition:transform .4s}
+.gps-veh{width:48px;height:48px;transition:transform .4s;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+/* Al navegar, Leaflet sigue plano y con el norte arriba por dentro (así nunca descuadra): el contenedor se vuelve un
+   CUADRADO grande centrado en el mensajero y encima se le aplica el giro (rumbo) y, en 3D, la inclinación.
+   El mensajero queda al 72 % de la altura de la pantalla, como en Google. --lado y --giro los pone aplicarVista(). */
+body.navegando.girando #map{inset:auto;width:var(--lado);height:var(--lado);left:calc(50vw - var(--lado) / 2);top:calc(72vh - var(--lado) / 2);
+  transform-origin:50% 50%;transform:var(--giro);transition:transform .6s linear}
+#nav-3d{font:800 15px var(--font)}
 .cam-ico{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .via{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid #2563EB;box-shadow:0 1px 5px rgba(0,0,0,.4)}
 .via-fija{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #2563EB}
@@ -423,6 +430,7 @@ body.navegando .top,body.navegando .sheet,body.navegando #card,body.navegando .f
     <button class="fab" id="nav-brujula" type="button" aria-label="Norte arriba o hacia donde voy">
       <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2l4 10h-8z" fill="#D93025"/><path d="M12 22l-4-10h8z" fill="#9AA0A6"/></svg>
     </button>
+    <button class="fab" id="nav-3d" type="button" aria-label="Vista 3D o 2D">2D</button>
     <button class="fab" id="nav-voz" type="button" aria-label="Voz">🔊</button>
   </div>
   <button class="nav-centrar hidden" id="nav-centrar" type="button">➤ Volver a centrar</button>
@@ -445,7 +453,6 @@ body.navegando .top,body.navegando .sheet,body.navegando #card,body.navegando .f
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
 <script>
 (function () {
 'use strict';
@@ -617,8 +624,8 @@ function decodificar(str) {
 // ---------------- mapa ----------------
 let map, capaZonas, capaRuta, capaParadas, capaCam, mkCand = null, mkGps = null, circGps = null, mkMover = null;
 function iniciarMapa() {
-  // leaflet-rotate: el mapa gira hacia donde va el mensajero al navegar (si no cargó, queda con el norte arriba).
-  map = L.map('map', { zoomControl: false, rotate: true, rotateControl: false, touchRotate: false, shiftKeyRotate: false, bearing: 0 }).setView([6.245, -75.575], 12);
+  // Sin fundido de teselas: al navegar el mapa se mueve en cada lectura del GPS y el fundido las dejaba invisibles.
+  map = L.map('map', { zoomControl: false, fadeAnimation: false }).setView([6.245, -75.575], 12);
   map.attributionControl.setPosition('topright').setPrefix(false);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
@@ -627,6 +634,7 @@ function iniciarMapa() {
   capaRuta = L.layerGroup().addTo(map);
   capaParadas = L.layerGroup().addTo(map);
   capaCam = L.layerGroup().addTo(map);
+  if (/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) window.__mapa = map;   // solo para el banco de pruebas
   map.on('zoomend moveend', () => { clearTimeout(pintarCamaras._t); pintarCamaras._t = setTimeout(pintarCamaras, 150); });
   map.on('click', clickMapa);
   map.on('dragstart', () => {
@@ -706,14 +714,15 @@ function pintarGps() {
   // Al navegar el punto azul se vuelve flecha (como Google) y apunta hacia donde va.
   const el = mkGps.getElement && mkGps.getElement(), f = el && el.firstChild;
   if (f) {
-    const quiere = NAV.on ? 'gps-flecha' : 'gps-dot';
+    const v = NAV.on ? vehiculoActual() : null;
+    const quiere = NAV.on ? 'gps-veh ' + v.tipo : 'gps-dot';
     if (f.className !== quiere) {
       f.className = quiere;
-      f.innerHTML = NAV.on ? '<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" opacity=".95"/><path d="M20 6l10 25-10-6-10 6z" fill="#1A73E8" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>' : '';
-      mkGps.setIcon(L.divIcon({ className: '', html: f.outerHTML, iconSize: NAV.on ? [40, 40] : [18, 18], iconAnchor: NAV.on ? [20, 20] : [9, 9] }));
+      f.innerHTML = NAV.on ? iconoVehiculo(v.tipo, v.color) : '';
+      mkGps.setIcon(L.divIcon({ className: '', html: f.outerHTML, iconSize: NAV.on ? [48, 48] : [18, 18], iconAnchor: NAV.on ? [24, 24] : [9, 9] }));
     }
     const f2 = mkGps.getElement().firstChild;
-    const giro = NAV.on && NAV.rumbo != null ? NAV.rumbo - (ROTA() ? map.getBearing() : 0) : 0;
+    const giro = NAV.on && NAV.rumbo != null ? NAV.rumbo : 0;   // el mapa por dentro va con el norte arriba
     f2.style.transform = giro ? 'rotate(' + giro + 'deg)' : '';
   }
   if (S.siguiendo && !NAV.on) map.panTo(ll);
@@ -728,6 +737,7 @@ function iniciarGps() {
 }
 
 function ajustarVista(forzarZona) {
+  if (NAV.on) return;   // navegando manda el GPS, no el encuadre de las paradas
   const pts = paradasVisibles().filter((p) => p.lat != null && p.estado !== 'entregada').map((p) => [p.lat, p.lng]);
   const pad = { paddingTopLeft: [20, alturaTop() + 20], paddingBottomRight: [20, 200] };
   if (pts.length && !forzarZona) { map.fitBounds(L.latLngBounds(pts), Object.assign({ maxZoom: 16 }, pad)); return; }
@@ -1364,7 +1374,7 @@ function arrancar(r) {
   setTimeout(() => { map.invalidateSize(); medirTop(); ajustarVista(); }, 60);
   renderTodo(); guardarLocal();
   if (!esAdmin()) iniciarGps();
-  S.verCamaras = lsGet('verCamaras', true); S.voz = lsGet('voz', true); NAV.norteArriba = lsGet('norteArriba', false);
+  S.verCamaras = lsGet('verCamaras', true); S.voz = lsGet('voz', true); NAV.norteArriba = lsGet('norteArriba', false); NAV.vista3d = lsGet('vista3d', true);
   cargarCamaras();
 }
 
@@ -1435,7 +1445,7 @@ function pintarCamaras() {
 
 // ---------------- navegar dentro de la app (como Google Maps) ----------------
 const NAV = { on: false, parada: null, paso: 0, fuera: 0, avisos: {}, cams: {}, camMin: {}, ultRecalc: 0, recalculando: false,
-  wake: null, linea: null, llego: false, rumbo: null, previo: null, norteArriba: false, volverTrasEditar: false };
+  wake: null, linea: null, llego: false, rumbo: null, previo: null, norteArriba: false, volverTrasEditar: false, vista3d: true };
 const FLECHAS = {
   'turn-right': '↱', 'turn-left': '↰', 'turn-slight-right': '↗', 'turn-slight-left': '↖', 'turn-sharp-right': '↱', 'turn-sharp-left': '↰',
   'keep-right': '↗', 'keep-left': '↖', 'fork-right': '↗', 'fork-left': '↖', 'ramp-right': '↗', 'ramp-left': '↖', 'uturn-right': '↷', 'uturn-left': '↶',
@@ -1475,7 +1485,60 @@ function pedirPantallaEncendida() {
   if (!NAV.on || !navigator.wakeLock) return;
   navigator.wakeLock.request('screen').then((w) => { NAV.wake = w; }).catch(() => { });
 }
-const ROTA = () => !!(map && map.setBearing);
+// (Se probó leaflet-rotate y descuadra las posiciones con el mapa inclinado: el giro ahora es CSS encima de Leaflet.)
+const ROTA = () => false;
+// Íconos vistos desde arriba, apuntando hacia adelante (arriba). Color = el de la zona del mensajero.
+function iconoVehiculo(tipo, color) {
+  const c = color || '#1A73E8';
+  if (tipo === 'carro') return '<svg width="48" height="48" viewBox="0 0 48 48">' +
+    '<rect x="14" y="5" width="20" height="38" rx="8" fill="' + c + '" stroke="#fff" stroke-width="2.2"/>' +
+    '<path d="M16.5 15.5Q24 11 31.5 15.5L30 21.5Q24 19.5 18 21.5Z" fill="#DCEBFF"/>' +
+    '<path d="M18 33Q24 35 30 33L31 38Q24 40.5 17 38Z" fill="#B7D3FF"/>' +
+    '<rect x="11" y="15" width="3.5" height="6" rx="1.7" fill="#333"/><rect x="33.5" y="15" width="3.5" height="6" rx="1.7" fill="#333"/>' +
+    '<rect x="17" y="6.5" width="4" height="2" rx="1" fill="#FFF7C2"/><rect x="27" y="6.5" width="4" height="2" rx="1" fill="#FFF7C2"/></svg>';
+  return '<svg width="48" height="48" viewBox="0 0 48 48">' +
+    '<rect x="21" y="3" width="6" height="11" rx="3" fill="#222"/><rect x="21" y="34" width="6" height="11" rx="3" fill="#222"/>' +
+    '<path d="M14 13.5h20" stroke="#333" stroke-width="3" stroke-linecap="round"/>' +
+    '<rect x="18.5" y="11" width="11" height="26" rx="5.5" fill="' + c + '" stroke="#fff" stroke-width="2"/>' +
+    '<circle cx="24" cy="23" r="6.5" fill="#1F1F1F" stroke="#fff" stroke-width="2"/><path d="M20.5 20.5Q24 18 27.5 20.5" stroke="#8AB4F8" stroke-width="2" fill="none"/></svg>';
+}
+function vehiculoActual() {
+  const id = esAdmin() ? S.filtro : S.usuario && S.usuario.id;
+  const m = esAdmin() ? mensajero(S.filtro) : S.usuario;
+  return { tipo: (m && m.vehiculo) || 'moto', color: colorMensajero(id) };
+}
+// Giro + 3D solo mientras sigue al mensajero. Si toca el mapa para mirar, vuelve a plano y con el norte arriba
+// (así el dedo mueve el mapa derecho); «Volver a centrar» lo devuelve.
+// Tamaños: en 3D (perspectiva 1450 px, 32°) el borde lejano llega arriba de la pantalla con ~920 px de mapa adelante
+// del mensajero (cuadrado de ~2.000 px). Con 40° hacía falta uno de 2.700 px y el navegador ya no pintaba las
+// teselas (límite de tamaño de capa de la tarjeta gráfica): no subir de ~2.000 px.
+// En 2D girado basta con cubrir la esquina más lejana de la pantalla en cualquier giro.
+const P3D = { persp: 1450, grados: 32 };
+function ladoVista() {
+  const W = window.innerWidth, V = window.innerHeight, py = 0.72 * V;
+  if (!NAV.vista3d) return Math.ceil(2 * Math.hypot(W / 2, py) + 40);
+  const t = P3D.grados * Math.PI / 180, d = P3D.persp;
+  const Y = py / (Math.cos(t) - py * Math.sin(t) / d);          // cuánto mapa hace falta hacia arriba
+  const esc = 1 / (1 + Y * Math.sin(t) / d);                     // lo que se achica allá arriba
+  return Math.ceil(2 * Math.hypot(Y, (W / 2) / esc) + 80);
+}
+function aplicarVista() {
+  const on = NAV.on && S.siguiendo;
+  const b = document.body, estaba = b.classList.contains('girando');
+  if (on) {
+    const lado = ladoVista();
+    if (!estaba || b.style.getPropertyValue('--lado') !== lado + 'px') { b.style.setProperty('--lado', lado + 'px'); b.classList.add('girando'); map.invalidateSize({ pan: false }); }
+    const rumbo = NAV.norteArriba || NAV.rumbo == null ? 0 : NAV.rumbo;
+    b.style.setProperty('--giro', (NAV.vista3d ? 'perspective(' + P3D.persp + 'px) rotateX(' + P3D.grados + 'deg) ' : '') + 'rotateZ(' + (-rumbo).toFixed(1) + 'deg)');
+    if (map.dragging) map.dragging.disable();
+  } else if (estaba) {
+    const el = $('#map'); el.style.left = el.style.top = el.style.transformOrigin = '';
+    b.classList.remove('girando'); map.invalidateSize({ pan: false });
+    if (map.dragging) map.dragging.enable();
+  }
+  $('#nav-3d').textContent = NAV.vista3d ? '2D' : '3D';
+}
+const aplicar3D = aplicarVista;
 function iniciarNav() {
   const r = rutaVigente();
   if (!r) { toast('Primero toca «Ordenar ruta».'); return; }
@@ -1489,6 +1552,7 @@ function iniciarNav() {
   $('#nav').classList.remove('hidden'); $('#navbot').classList.remove('hidden');
   $('#nav-voz').innerHTML = S.voz ? '🔊' : '🔇';
   S.siguiendo = true; $('#nav-centrar').classList.add('hidden');
+  aplicar3D(); pintarGps();
   if (S.gps) { map.setView([S.gps.lat, S.gps.lng], 17, { animate: false }); }
   pedirPantallaEncendida();
   // En iPhone la voz solo arranca si la primera frase sale del toque del botón: por eso se habla aquí.
@@ -1504,11 +1568,13 @@ function terminarNav(msg) {
   $('#nav').classList.add('hidden'); $('#navbot').classList.add('hidden');
   try { speechSynthesis.cancel(); } catch (e) { }
   if (ROTA()) map.setBearing(0);
+  aplicar3D();
   pintarGps(); renderTodo(); medirTop();
   if (msg) { toast(msg, 'ok'); hablar(msg); }
 }
 // Rumbo: el del GPS cuando va andando; si no lo da (iPhone quieto), se calcula entre dos lecturas.
 function actualizarRumbo(g) {
+  if (!NAV.previo) { NAV.previo = { lat: g.lat, lng: g.lng }; }
   if (g.rumbo != null && isFinite(g.rumbo) && (g.vel == null || g.vel > 1.2)) NAV.rumbo = g.rumbo;
   else if (NAV.previo && distM(NAV.previo.lat, NAV.previo.lng, g.lat, g.lng) > 8) {
     const r = Math.PI / 180, y = Math.sin((g.lng - NAV.previo.lng) * r) * Math.cos(g.lat * r);
@@ -1517,18 +1583,17 @@ function actualizarRumbo(g) {
   } else return;
   NAV.previo = { lat: g.lat, lng: g.lng };
 }
-// El mapa sigue al mensajero con su punto en la parte de abajo (se ve más calle adelante) y girado hacia donde va.
-// (Se centra en un punto ADELANTE del mensajero en vez de usar panBy: con el mapa girado panBy deja las teselas corridas.)
+// El mensajero queda en el centro del cuadrado (que en pantalla está al 72 % de alto) y el cuadrado gira con él.
+// El giro se hace alrededor del punto EXACTO donde Leaflet pintó al mensajero (no se supone que esté en el centro):
+// ese punto se lleva al 72 % de la pantalla y ahí se pone el eje del giro y de la inclinación.
 function seguirEnNav() {
   if (!S.gps || !S.siguiendo) return;
-  const rumbo = NAV.norteArriba || NAV.rumbo == null ? 0 : NAV.rumbo, z = 17;
-  const mPorPx = 156543.03 * Math.cos(S.gps.lat * Math.PI / 180) / Math.pow(2, z);
-  const adelante = map.getSize().y * 0.18 * mPorPx, r = Math.PI / 180;
-  const dir = (NAV.norteArriba ? 0 : rumbo) * r;
-  const lat = S.gps.lat + (adelante * Math.cos(dir)) / 110540;
-  const lng = S.gps.lng + (adelante * Math.sin(dir)) / (111320 * Math.cos(S.gps.lat * r));
-  if (ROTA()) map.setBearing(NAV.norteArriba ? 0 : rumbo);
-  map.setView([lat, lng], z, { animate: false });
+  aplicarVista();
+  map.setView([S.gps.lat, S.gps.lng], 17, { animate: false });
+  const p = map.latLngToContainerPoint([S.gps.lat, S.gps.lng]), el = $('#map');
+  el.style.transformOrigin = p.x.toFixed(1) + 'px ' + p.y.toFixed(1) + 'px';
+  el.style.left = (window.innerWidth / 2 - p.x).toFixed(1) + 'px';
+  el.style.top = (0.72 * window.innerHeight - p.y).toFixed(1) + 'px';
 }
 function navTick(inicio) {
   if (!NAV.on) return;
@@ -1952,10 +2017,21 @@ function conectarEventos() {
   $('#nb-saltar').addEventListener('click', navSaltar);
   $('#nb-salir').addEventListener('click', () => terminarNav());
   $('#nb-editar').addEventListener('click', navEditar);
-  $('#nav-centrar').addEventListener('click', () => { S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); if (S.gps) map.setZoom(17, { animate: false }); seguirEnNav(); });
+  $('#nav-centrar').addEventListener('click', () => { S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); aplicar3D(); if (S.gps) map.setZoom(17, { animate: false }); seguirEnNav(); });
+  $('#nav-3d').addEventListener('click', () => {
+    NAV.vista3d = !NAV.vista3d; lsSet('vista3d', NAV.vista3d);
+    S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); aplicar3D(); seguirEnNav();
+    $('#nav-3d').textContent = NAV.vista3d ? '2D' : '3D';
+  });
+  // Girado o en 3D el mapa no se arrastra (el dedo iría torcido): el primer toque lo vuelve plano para poder mirar.
+  $('#map').addEventListener('pointerdown', () => {
+    if (!NAV.on || !document.body.classList.contains('girando')) return;
+    S.siguiendo = false; aplicarVista(); $('#nav-centrar').classList.remove('hidden');
+  }, true);
+  window.addEventListener('resize', () => { if (NAV.on) aplicarVista(); });
   $('#nav-brujula').addEventListener('click', () => {
     NAV.norteArriba = !NAV.norteArriba; lsSet('norteArriba', NAV.norteArriba);
-    toast(NAV.norteArriba ? 'Norte arriba' : 'El mapa gira hacia donde vas'); seguirEnNav(); pintarGps();
+    toast(NAV.norteArriba ? 'Norte arriba' : 'El mapa gira hacia donde vas'); S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); seguirEnNav(); pintarGps();
   });
   $('#lista').addEventListener('pointerdown', (e) => {
     const h = e.target.closest('[data-drag]'); if (!h || !S.editRuta) return;
