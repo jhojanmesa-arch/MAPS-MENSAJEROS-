@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0F0D0E">
+<title>ANI-K Rutas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --blk:#0F0D0E; --ink:#1A1719; --graphite:#3A3537;
+  --pink:#EACCCE; --pink-deep:#D9A9AD; --pink-soft:#F6E6E7; --pink-pale:#FBF1F2; --pink-text:#9A6A6E;
+  --green:#0F6E56; --green-deep:#0D5C3D; --green-light:#E7F0EB;
+  --amber:#854F0B; --amber-light:#F6EEDF;
+  --orange:#C2410C; --orange-light:#FDEBDD;
+  --blue:#185FA5; --blue-light:#E6F1FB; --route:#2563EB;
+  --red:#B23A36; --red-light:#FBEBEA;
+  --white:#fff; --g50:#FBF6F6; --g100:#F1EBED; --g200:#DED7DA; --g400:#A79FA3; --g600:#6E666A;
+  --font:'Open Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; --logo:'Quicksand','Open Sans',sans-serif;
+  --sh:0 4px 18px rgba(15,13,14,.16); --top-h:150px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--font);color:var(--ink);background:var(--g50);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font-family:inherit;cursor:pointer;color:inherit}
+input,select{font-family:inherit}
+.hidden{display:none!important}
+
+/* ---------- botones ---------- */
+.btn{border:none;border-radius:11px;padding:11px 14px;font-size:13.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;transition:opacity .15s,background .15s}
+.btn:active{opacity:.75}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--blk);color:#fff}
+.btn.soft{background:var(--g100);color:var(--graphite)}
+.btn.ghost{background:transparent;color:var(--g600);border:1.5px solid var(--g200)}
+.btn.warn{background:var(--orange);color:#fff}
+.btn.link{background:none;color:var(--pink-text);font-weight:600;min-height:36px}
+.btn.full{width:100%}
+.btn.sm{min-height:36px;padding:8px 12px;font-size:12.5px}
+
+/* ---------- login ---------- */
+.login{position:fixed;inset:0;overflow-y:auto;background:#fff;display:flex;justify-content:center;padding:48px 20px 40px}
+.login-in{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center}
+.login-logo{display:flex;flex-direction:column;align-items:center;line-height:1;gap:4px}
+.ll-main{font-family:var(--logo);font-weight:700;font-size:42px;letter-spacing:-1px}
+.ll-sub{font-size:11px;color:var(--pink-text);letter-spacing:7px;font-weight:600;padding-left:6px}
+.login-tag{font-size:11px;color:var(--g400);margin-top:14px;letter-spacing:2px;text-transform:uppercase;font-weight:700}
+.login-div{width:28px;height:2px;background:var(--pink-deep);border-radius:2px;margin:16px auto 30px}
+.login-lbl{font-size:10px;font-weight:700;color:var(--g400);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px;text-align:center}
+#login-paso1{width:100%}
+.login-lista{display:flex;flex-direction:column;gap:9px;width:100%}
+.login-cargando{text-align:center;color:var(--g400);font-size:13px;padding:10px}
+.m-btn{width:100%;background:#fff;border:1.5px solid var(--g100);border-radius:16px;padding:13px 15px;display:flex;align-items:center;gap:13px;text-align:left;box-shadow:0 1px 4px rgba(15,13,14,.04)}
+.m-btn:active{background:var(--pink-pale)}
+.m-ava{width:40px;height:40px;border-radius:50%;background:var(--pink-soft);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--pink-text);flex-shrink:0}
+.m-ava.adm{background:var(--blk);color:#fff}
+.m-nom{font-size:14px;font-weight:700}
+.m-rol{font-size:11px;color:var(--g400)}
+.login-pin{width:100%;display:flex;flex-direction:column;align-items:center;gap:10px}
+.lp-ava{width:56px;height:56px;border-radius:50%;background:var(--pink-soft);color:var(--pink-text);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.lp-nom{font-size:16px;font-weight:700;margin-bottom:6px}
+#lp-pin{width:100%;text-align:center;font-size:24px;letter-spacing:10px;font-weight:700;padding:12px;border:1.5px solid var(--g200);border-radius:12px;outline:none}
+#lp-pin:focus{border-color:var(--blk)}
+.lp-err{min-height:18px;font-size:12.5px;color:var(--red);font-weight:600;text-align:center}
+.login-aviso{width:100%;background:var(--amber-light);color:var(--amber);border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;margin-bottom:16px;line-height:1.45}
+
+/* ---------- mapa ---------- */
+#map{position:fixed;inset:0;z-index:0;background:#e8e4e1}
+.leaflet-top.leaflet-right{top:calc(var(--top-h) + 4px)}
+.leaflet-control-attribution{font-size:10px!important}
+.zlbl{width:0!important;height:0!important}
+.zlbl span{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font:800 11px var(--font);letter-spacing:.08em;color:var(--c);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 0 4px #fff}
+.pin{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 13px var(--font);color:#fff;background:var(--blk);border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .15s}
+.pin.otra{background:var(--orange)}
+.pin.fuera{background:var(--red)}
+.pin.lim{box-shadow:0 0 0 3px #FDBA74,0 2px 6px rgba(0,0,0,.35)}
+.pin.done{background:#A1A1AA;font-size:15px}
+.pin.mal{box-shadow:0 0 0 3px var(--red),0 2px 6px rgba(0,0,0,.35)}
+.pin.sel{transform:scale(1.3);z-index:1000}
+.pin-salida{width:26px;height:26px;border-radius:7px;background:#fff;border:2.5px solid var(--blk);display:flex;align-items:center;justify-content:center;font:800 11px var(--font);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.gps-dot{width:18px;height:18px;border-radius:50%;background:#1A73E8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(26,115,232,.35),0 1px 4px rgba(0,0,0,.4)}
+
+/* ---------- panel superior ---------- */
+.top{position:fixed;z-index:500;top:calc(env(safe-area-inset-top) + 8px);left:8px;right:8px;max-width:560px;margin:0 auto;filter:drop-shadow(0 4px 14px rgba(15,13,14,.18))}
+.bar{background:var(--blk);color:#fff;border-radius:16px 16px 0 0;padding:8px 10px 8px 14px;display:flex;align-items:center;gap:10px;position:relative}
+.bar::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--pink-deep)}
+.logo{display:flex;flex-direction:column;line-height:1;gap:1px}
+.logo-main{font-family:var(--logo);font-weight:700;font-size:19px;letter-spacing:-.5px}
+.logo-sub{font-size:7px;color:var(--pink);letter-spacing:4px;font-weight:700}
+.bar-fecha{flex:1;font-size:11px;color:rgba(255,255,255,.55);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:none;border-radius:20px;padding:4px 10px 4px 4px;color:#fff;max-width:46%}
+.user-ava{width:26px;height:26px;border-radius:50%;background:var(--pink);color:var(--blk);font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.user-nom{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search{display:flex;align-items:center;background:#fff;padding:6px 6px 6px 12px;gap:6px}
+.search input{flex:1;min-width:0;border:none;outline:none;font-size:16px;font-weight:600;padding:8px 0;background:transparent;color:var(--ink)}
+.search input::placeholder{color:var(--g400);font-weight:500}
+.search-btn{width:42px;height:42px;border:none;border-radius:11px;background:var(--blk);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pend{background:var(--amber-light);color:var(--amber);font-size:12.5px;font-weight:700;padding:7px 12px;display:flex;align-items:center;gap:8px}
+.pend span{flex:1}
+.pend button{border:none;background:none;font-size:16px;line-height:1;color:var(--amber);padding:2px 4px}
+.munis,.filtros{display:flex;gap:6px;overflow-x:auto;background:#fff;padding:2px 10px 10px;border-radius:0 0 16px 16px;scrollbar-width:none}
+.munis::-webkit-scrollbar,.filtros::-webkit-scrollbar{display:none}
+.filtros{border-top:1px solid var(--g100);padding-top:8px}
+.top.con-filtros .munis{border-radius:0}
+.chip-m{flex-shrink:0;border:1.5px solid var(--g200);background:#fff;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--g600);white-space:nowrap}
+.chip-m.on{background:var(--blk);border-color:var(--blk);color:#fff}
+.munis.apagado .chip-m{opacity:.4}
+.chip-f{flex-shrink:0;border:1.5px solid var(--g200);background:#fff;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--g600);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.chip-f i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip-f.on{border-color:var(--blk);color:var(--ink);background:var(--g100)}
+
+/* ---------- botones flotantes ---------- */
+.fabs{position:fixed;z-index:450;right:12px;top:calc(var(--top-h) + 44px);display:flex;flex-direction:column;gap:8px}
+.fab{width:44px;height:44px;border-radius:50%;border:none;background:#fff;color:var(--graphite);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center}
+.fab.on{color:#1A73E8}
+
+/* ---------- barra de edición (mover pin / zonas) ---------- */
+.editbar{position:fixed;z-index:800;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 10px);max-width:560px;margin:0 auto;background:var(--blk);color:#fff;border-radius:16px;padding:12px 12px 12px 14px;box-shadow:var(--sh)}
+.eb-fila{display:flex;align-items:center;gap:10px}
+.eb-zonas{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;scrollbar-width:none}
+.editbar .chip-f{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.25);color:#fff}
+.editbar .chip-f.on{background:#fff;color:var(--ink);border-color:#fff}
+.eb-txt{flex:1;font-size:12.5px;line-height:1.4;font-weight:600}
+.eb-acts{display:flex;gap:6px}
+.editbar .btn.ghost{color:#fff;border-color:rgba(255,255,255,.3)}
+.editbar .btn.primary{background:var(--pink);color:var(--blk)}
+
+/* ---------- tarjeta de resultado ---------- */
+.card{position:fixed;z-index:700;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);max-width:560px;margin:0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 30px rgba(15,13,14,.25);overflow:hidden;max-height:62dvh;display:flex;flex-direction:column}
+.cv{display:flex;align-items:flex-start;gap:11px;padding:13px 15px}
+.cv-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:17px;color:#fff}
+.cv-tit{font-size:15.5px;font-weight:800;line-height:1.25}
+.cv-sub{font-size:12.5px;margin-top:2px;opacity:.85;line-height:1.35}
+.cv.ok{background:var(--green-light);color:var(--green-deep)} .cv.ok .cv-ico{background:var(--green)}
+.cv.otra{background:var(--orange-light);color:var(--orange)} .cv.otra .cv-ico{background:var(--orange)}
+.cv.lim{background:var(--amber-light);color:var(--amber)} .cv.lim .cv-ico{background:#B7791F}
+.cv.fuera{background:var(--red-light);color:var(--red)} .cv.fuera .cv-ico{background:var(--red)}
+.cv.neutro{background:var(--g100);color:var(--graphite)} .cv.neutro .cv-ico{background:var(--graphite)}
+.cv.info{background:var(--blue-light);color:var(--blue)} .cv.info .cv-ico{background:var(--blue)}
+.cb{padding:12px 15px 4px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.cb-ped{font-size:11px;font-weight:800;color:var(--pink-text);letter-spacing:.04em;text-transform:uppercase}
+.cb-dir{font-size:15px;font-weight:700;line-height:1.3}
+.cb-goo{font-size:12px;color:var(--g600);line-height:1.35}
+.prec{align-self:flex-start;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:.02em}
+.prec.exacta{background:var(--green-light);color:var(--green-deep)}
+.prec.aproximada{background:var(--amber-light);color:var(--amber)}
+.prec.baja{background:var(--red-light);color:var(--red)}
+.prec.manual{background:var(--blue-light);color:var(--blue)}
+.cb-aviso{font-size:12px;color:var(--amber);font-weight:700;background:var(--amber-light);border-radius:9px;padding:7px 10px}
+.cb-hint{font-size:12px;color:var(--g600)}
+.cb-sel{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--g600)}
+.cb-sel select{flex:1;padding:8px;border:1.5px solid var(--g200);border-radius:9px;font-size:14px;font-weight:700;background:#fff}
+.ca{display:flex;gap:8px;padding:10px 15px 14px}
+.ca .btn{flex:1}
+.ca .btn.primary{flex:1.6}
+.spin{width:26px;height:26px;border:3px solid var(--g200);border-top-color:var(--blk);border-radius:50%;animation:gira .8s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.cargando{display:flex;align-items:center;gap:12px;padding:16px 15px;font-size:13.5px;font-weight:600;color:var(--g600)}
+
+/* ---------- hoja inferior (mi ruta) ---------- */
+.sheet{position:fixed;z-index:600;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -6px 24px rgba(15,13,14,.16);display:flex;flex-direction:column;max-height:72dvh;padding-bottom:env(safe-area-inset-bottom)}
+body.con-card .sheet,body.editando .sheet{display:none}
+.sh-head{padding:6px 16px 4px;cursor:pointer;user-select:none}
+.grab{width:38px;height:4px;border-radius:4px;background:var(--g200);margin:0 auto 7px}
+.sh-row{display:flex;align-items:center;gap:10px}
+.sh-info{flex:1;min-width:0}
+.sh-tit{font-size:15px;font-weight:800}
+.sh-sub{font-size:12px;color:var(--g600);line-height:1.4;margin-top:1px}
+.sh-sub b{color:var(--ink)}
+.sh-sub .al{color:var(--orange);font-weight:700}
+.sh-sub .al.r{color:var(--red)}
+.sh-tog{width:34px;height:34px;border:none;border-radius:50%;background:var(--g100);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
+.sheet.abierta .sh-tog{transform:rotate(180deg)}
+.sh-acts{display:flex;gap:7px;padding:6px 12px 10px}
+.sh-acts .btn{flex:1;padding:10px 6px;font-size:12.5px}
+.sh-body{display:none;overflow-y:auto;border-top:1px solid var(--g100);padding:8px 10px 10px;-webkit-overflow-scrolling:touch}
+.sheet.abierta .sh-body{display:block}
+.sh-pie{font-size:10px;color:var(--g400);text-align:center;padding:10px 0 2px}
+.vacio{font-size:13px;color:var(--g600);text-align:center;padding:18px 12px;line-height:1.5}
+.grupo{font-size:10px;font-weight:800;color:var(--g400);letter-spacing:.08em;text-transform:uppercase;padding:10px 6px 6px}
+.st{border:1px solid var(--g100);border-radius:14px;margin-bottom:7px;background:#fff;overflow:hidden}
+.st.sel{border-color:var(--blk);box-shadow:0 2px 10px rgba(15,13,14,.1)}
+.st-main{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 11px;cursor:pointer}
+.st-num{width:30px;height:30px;border-radius:50%;background:var(--blk);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.st-num.otra{background:var(--orange)} .st-num.fuera{background:var(--red)} .st-num.done{background:#A1A1AA} .st-num.nada{background:var(--g200);color:var(--g600)}
+.st-txt{flex:1;min-width:0}
+.st-l1{font-size:11px;font-weight:800;color:var(--pink-text);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-l2{font-size:13.5px;font-weight:700;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.st.done .st-l2{text-decoration:line-through;color:var(--g400)}
+.st-chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.ch{font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:12px;background:var(--g100);color:var(--g600);white-space:nowrap}
+.ch.ok{background:var(--green-light);color:var(--green-deep)}
+.ch.otra{background:var(--orange-light);color:var(--orange)}
+.ch.lim{background:var(--amber-light);color:var(--amber)}
+.ch.fuera{background:var(--red-light);color:var(--red)}
+.ch.eta{background:var(--blue-light);color:var(--blue)}
+.st-go{border:none;background:var(--g100);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;flex-shrink:0}
+.st-acts{display:none;flex-wrap:wrap;gap:6px;padding:0 10px 10px 51px}
+.st.sel .st-acts{display:flex}
+.st-acts .btn{flex:1 1 auto;min-height:36px;padding:7px 10px;font-size:12px}
+
+/* ---------- menú y modales ---------- */
+.velo{position:fixed;inset:0;z-index:900;background:rgba(15,13,14,.35);display:flex;align-items:flex-end;justify-content:center;padding:10px}
+.caja{width:100%;max-width:440px;background:#fff;border-radius:18px;padding:16px;box-shadow:var(--sh);margin-bottom:env(safe-area-inset-bottom)}
+.caja-tit{font-size:16px;font-weight:800;margin-bottom:12px}
+.opc{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1.5px solid var(--g100);border-radius:12px;margin-bottom:8px;font-size:13.5px;font-weight:600;cursor:pointer}
+.opc input{width:18px;height:18px;accent-color:var(--blk)}
+.opc small{display:block;font-size:11.5px;color:var(--g400);font-weight:600}
+.opc.off{opacity:.45}
+.caja-nota{font-size:12px;color:var(--g600);margin:2px 2px 10px;line-height:1.4}
+.caja-acts{display:flex;gap:8px;margin-top:6px}
+.caja-acts .btn{flex:1}
+.menu-it{width:100%;text-align:left;border:none;background:none;padding:13px 6px;font-size:14px;font-weight:700;border-bottom:1px solid var(--g100);display:flex;align-items:center;gap:10px}
+.menu-it:last-child{border-bottom:none}
+.menu-it.rojo{color:var(--red)}
+.menu-quien{font-size:12px;color:var(--g400);font-weight:600;margin:-6px 0 6px}
+
+/* ---------- avisos ---------- */
+.busy{position:fixed;inset:0;z-index:1000;background:rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}
+.busy-box{background:#fff;border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh);font-size:14px;font-weight:700;max-width:80%}
+.toast{position:fixed;z-index:1100;left:50%;top:calc(var(--top-h) + 16px);transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--blk);color:#fff;font-size:13px;font-weight:700;padding:10px 16px;border-radius:12px;box-shadow:var(--sh);transition:all .25s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.ok{background:var(--green)} .toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="v-login" class="login">
+  <div class="login-in">
+    <div class="login-logo"><span class="ll-main">Ani-K</span><span class="ll-sub">MAKEUP</span></div>
+    <div class="login-tag">Rutas de mensajeros</div>
+    <div class="login-div"></div>
+    <div id="login-aviso" class="login-aviso hidden"></div>
+    <div id="login-paso1">
+      <div class="login-lbl">¿Quién eres?</div>
+      <div id="login-lista" class="login-lista"><div class="login-cargando">Cargando…</div></div>
+    </div>
+    <form id="login-paso2" class="login-pin hidden" autocomplete="off">
+      <div class="lp-ava" id="lp-ava"></div>
+      <div class="lp-nom" id="lp-nom"></div>
+      <input id="lp-pin" type="password" inputmode="numeric" maxlength="8" placeholder="PIN" aria-label="PIN" autocomplete="off">
+      <div id="lp-err" class="lp-err"></div>
+      <button type="submit" class="btn primary full" id="lp-go">Entrar</button>
+      <button type="button" class="btn link" id="lp-otro">Soy otra persona</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="v-app" class="hidden">
+  <div id="map"></div>
+
+  <div class="top" id="top">
+    <div class="bar">
+      <div class="logo"><span class="logo-main">Ani-K</span><span class="logo-sub">RUTAS</span></div>
+      <div class="bar-fecha" id="bar-fecha"></div>
+      <button class="user" id="btn-user" type="button" aria-label="Mi sesión"><span class="user-ava" id="user-ava"></span><span class="user-nom" id="user-nom"></span></button>
+    </div>
+    <form class="search" id="f-buscar" autocomplete="off">
+      <input id="q" type="search" enterkeyhint="search" placeholder="N° de pedido o dirección" aria-label="Número de pedido o dirección">
+      <button type="submit" class="search-btn" aria-label="Buscar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+      </button>
+    </form>
+    <div class="pend hidden" id="pend"><span id="pend-txt"></span><button type="button" id="pend-x" aria-label="Quitar">✕</button></div>
+    <div class="munis" id="munis"></div>
+    <div class="filtros hidden" id="filtros"></div>
+  </div>
+
+  <div class="fabs">
+    <button class="fab" id="fab-gps" type="button" aria-label="Mi ubicación">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+    </button>
+    <button class="fab" id="fab-fit" type="button" aria-label="Ver todas mis paradas">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 9 4 4 9 4"/><polyline points="15 4 20 4 20 9"/><polyline points="20 15 20 20 15 20"/><polyline points="9 20 4 20 4 15"/></svg>
+    </button>
+  </div>
+
+  <div class="editbar hidden" id="editbar">
+    <div class="eb-zonas hidden" id="eb-zonas"></div>
+    <div class="eb-fila">
+      <div class="eb-txt" id="eb-txt"></div>
+      <div class="eb-acts"><button class="btn ghost sm" id="eb-no" type="button">Cancelar</button><button class="btn primary sm" id="eb-si" type="button">Guardar</button></div>
+    </div>
+  </div>
+
+  <section class="card hidden" id="card" aria-live="polite"></section>
+
+  <section class="sheet" id="sheet">
+    <div class="sh-head" id="sh-head">
+      <div class="grab"></div>
+      <div class="sh-row">
+        <div class="sh-info"><div class="sh-tit" id="sh-tit">Mi ruta de hoy</div><div class="sh-sub" id="sh-sub"></div></div>
+        <button class="sh-tog" id="sh-tog" type="button" aria-label="Ver la lista">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><polyline points="6 15 12 9 18 15"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="sh-acts">
+      <button class="btn soft" id="b-traer" type="button">Pedidos de hoy</button>
+      <button class="btn primary" id="b-ruta" type="button">Ordenar ruta</button>
+      <button class="btn soft" id="b-gmaps" type="button">Google Maps</button>
+    </div>
+    <div class="sh-body" id="sh-body">
+      <div id="lista"></div>
+      <div class="sh-pie">Mapa © OpenStreetMap · Direcciones y rutas: Google</div>
+    </div>
+  </section>
+
+  <div class="velo hidden" id="m-menu">
+    <div class="caja">
+      <div class="caja-tit" id="mm-nom"></div>
+      <div class="menu-quien" id="mm-quien"></div>
+      <button class="menu-it" id="mm-act" type="button">Actualizar</button>
+      <button class="menu-it hidden" id="mm-zonas" type="button">Editar zonas</button>
+      <button class="menu-it rojo" id="mm-salir" type="button">Salir</button>
+      <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cerrar</button></div>
+    </div>
+  </div>
+
+  <div class="velo hidden" id="m-ruta">
+    <div class="caja">
+      <div class="caja-tit">Ordenar la ruta</div>
+      <div class="cb-sel hidden" id="r-mens-wrap" style="margin-bottom:10px">Mensajero <select id="r-mens"></select></div>
+      <label class="opc" id="r-opc-gps"><input type="radio" name="r-org" value="gps"><span>Salir desde donde estoy<small id="r-gps-nota">Con el GPS del celular</small></span></label>
+      <label class="opc"><input type="radio" name="r-org" value="bodega"><span>Salir desde la bodega<small id="r-bod-nota"></small></span></label>
+      <label class="opc"><input type="checkbox" id="r-volver"><span>Terminar en la bodega</span></label>
+      <div class="caja-nota">Solo entran las paradas pendientes que tienen ubicación. Google calcula en carro: en moto suele ser algo más rápido.</div>
+      <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cancelar</button><button class="btn primary" id="r-go" type="button">Calcular ruta</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="busy hidden" id="busy"><div class="busy-box"><div class="spin"></div><div id="busy-txt">Cargando…</div></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(function () {
+'use strict';
+
+// ============================================================
+//  ANI-K RUTAS — rutas.html v1.0 (25-sep-2026)
+//  Página para GitHub Pages. Toda la información vive en el
+//  Apps Script (Code.gs): aquí solo se muestra y se captura.
+//  CONFIGURACIÓN: pega en API_URL la URL /exec de la app web.
+// ============================================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbyCOhA15MnZkslB5sdCmcsblYJ7E8fjCx0FY63YSAAeqv3rjbGOBYJkSzDpVSbkkWNsgA/exec';
+
+const LS = 'anik_rutas_';
+const GEOMAN = 'https://cdn.jsdelivr.net/npm/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman';
+
+const S = {
+  token: null, usuario: null, hoy: '', zonas: [], mensajeros: [], config: null,
+  paradas: [], ruta: null, municipio: 'Medellín', gps: null, gpsError: null, siguiendo: false,
+  modo: null, cand: null, mover: null, sel: null, filtro: '', pendiente: null,
+  seqBuscar: 0, seqRuta: 0, ultimoRefresco: 0, editZonas: null
+};
+
+// ---------------- utilidades ----------------
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => Array.prototype.slice.call(document.querySelectorAll(s));
+function esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function lsGet(k, def) { try { const v = localStorage.getItem(LS + k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } }
+function lsSet(k, v) { try { localStorage.setItem(LS + k, JSON.stringify(v)); } catch (e) { } }
+function lsDel(k) { try { localStorage.removeItem(LS + k); } catch (e) { } }
+function espera(ms) { return new Promise((r) => setTimeout(r, ms)); }
+function nuevoRid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function iniciales(n) { return String(n || '?').split(/\s+/).filter(Boolean).map((w) => w[0]).join('').slice(0, 2).toUpperCase(); }
+function esAdmin() { return !!(S.usuario && S.usuario.rol === 'admin'); }
+function esNumeroPedido(t) { return /^#?\s*([A-Za-z]{1,4}-?)?\d{3,9}$/.test(String(t).trim()); }
+function km(m) { return m >= 1000 ? (m / 1000).toFixed(m >= 10000 ? 0 : 1).replace('.', ',') + ' km' : Math.round(m) + ' m'; }
+function duracion(s) { const m = Math.round(s / 60); return m < 60 ? m + ' min' : Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') + ' min'; }
+function hora(ms) {
+  const d = new Date(ms); let h = d.getHours(); const am = h < 12 ? 'a. m.' : 'p. m.';
+  h = h % 12 || 12; return h + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + am;
+}
+function fechaLarga() {
+  const d = new Date(), dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  return dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()];
+}
+function toast(msg, tipo) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (tipo ? ' ' + tipo : '');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), tipo === 'err' ? 5000 : 3200);
+}
+function ocupado(on, txt) { $('#busy').classList.toggle('hidden', !on); if (txt) $('#busy-txt').textContent = txt; }
+function mensajero(id) { return S.mensajeros.find((m) => m.id === id) || null; }
+function nombreDe(id) { const m = mensajero(id); return m ? m.nombre : (id || ''); }
+function zona(id) { return S.zonas.find((z) => z.id === id) || null; }
+function zonasPropias() { return esAdmin() ? [] : (S.usuario.zonas || []); }
+function colorMensajero(id) { const z = S.zonas.find((x) => x.mensajero === id); return z ? z.color : '#555'; }
+function colorTexto(hex) {
+  const n = parseInt(String(hex).replace('#', ''), 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  if (lum < 0.55) return hex;
+  const f = 0.55; return 'rgb(' + Math.round(r * f) + ',' + Math.round(g * f) + ',' + Math.round(b * f) + ')';
+}
+
+// ---------------- conexión con el Apps Script ----------------
+function api(fn, args, rid) {
+  const payload = { fn: fn, token: S.token, args: args || {} };
+  if (rid) payload.rid = rid;
+  return intentar(payload, 3).then((r) => {
+    if (r && r.code === 'AUTH') { salir(true); throw new Error(r.error || 'Sesión vencida'); }
+    return r || { ok: false, error: 'Sin respuesta del servidor.' };
+  });
+}
+// Abierta desde la URL /exec (Apps Script): se habla directo con el servidor, sin fetch.
+const EN_GAS = !!(window.google && google.script && google.script.run);
+function intentarGas(payload, n) {
+  return new Promise((ok, mal) => {
+    google.script.run
+      .withSuccessHandler((t) => { try { ok(JSON.parse(t)); } catch (e) { mal(new Error('Respuesta rara del servidor.')); } })
+      .withFailureHandler((e) => mal(new Error((e && e.message) || 'No pude conectar con el servidor.')))
+      .apiWeb(JSON.stringify(payload));
+  }).catch((err) => {
+    if (n > 1) return espera(900).then(() => intentarGas(payload, n - 1));
+    throw err;
+  });
+}
+function intentar(payload, n) {
+  if (EN_GAS) return intentarGas(payload, n);
+  if (API_URL.indexOf('PEGA_AQUI') === 0) return Promise.reject(new Error('Falta pegar la URL del Apps Script en API_URL (rutas.html).'));
+  const SIN_PERMISO = 'El Apps Script pide iniciar sesión: en Implementar > Gestionar implementaciones pon «Quién tiene acceso: Cualquier persona».';
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+    .then((r) => {
+      if (r.status === 401 || r.status === 403) { const e = new Error(SIN_PERMISO); e.sinReintento = true; throw e; }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then((t) => {
+      try { return JSON.parse(t); }
+      catch (e) { const x = new Error(SIN_PERMISO); x.sinReintento = true; throw x; }   // llegó la página de login de Google
+    })
+    .catch((err) => {
+      if (n > 1 && !err.sinReintento) return espera(900).then(() => intentar(payload, n - 1));
+      // Si falta el permiso, Google responde sin CORS y el navegador lo reporta igual que "sin internet".
+      if (err instanceof TypeError) throw new Error('No pude conectar con el servidor. Revisa el internet; si sí hay internet, el Apps Script no está publicado para «Cualquier persona».');
+      throw err;
+    });
+}
+
+// ---------------- geometría (igual que en Code.gs) ----------------
+function enPoligono(lat, lng, pol) {
+  let dentro = false;
+  for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) {
+    const yi = pol[i][0], xi = pol[i][1], yj = pol[j][0], xj = pol[j][1];
+    if ((yi > lat) !== (yj > lat) && lng < (xj - xi) * (lat - yi) / (yj - yi) + xi) dentro = !dentro;
+  }
+  return dentro;
+}
+function distPoligono(lat, lng, pol) {
+  const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540; let best = Infinity;
+  for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) {
+    const ax = (pol[j][1] - lng) * kx, ay = (pol[j][0] - lat) * ky, bx = (pol[i][1] - lng) * kx, by = (pol[i][0] - lat) * ky;
+    const dx = bx - ax, dy = by - ay, L2 = dx * dx + dy * dy;
+    const t = L2 ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L2)) : 0;
+    const cx = ax + t * dx, cy = ay + t * dy; best = Math.min(best, Math.sqrt(cx * cx + cy * cy));
+  }
+  return best;
+}
+function clasificar(lat, lng, propias) {
+  if (lat == null || lng == null) return { zona: '', veredicto: 'sin_ubicacion' };
+  const dentro = S.zonas.filter((z) => enPoligono(lat, lng, z.poligono));
+  if (dentro.length) {
+    const z = dentro.find((x) => propias.includes(x.id)) || dentro[0];
+    return { zona: z.id, mensajero: z.mensajero, veredicto: propias.includes(z.id) ? 'propia' : 'otra', distanciaM: 0 };
+  }
+  let best = null;
+  S.zonas.forEach((z) => { const d = distPoligono(lat, lng, z.poligono); if (!best || d < best.d) best = { z: z, d: d }; });
+  const tol = (S.config && S.config.toleranciaM) || 250;
+  if (best && best.d <= tol) return { zona: best.z.id, mensajero: best.z.mensajero, veredicto: 'limite', propia: propias.includes(best.z.id), distanciaM: Math.round(best.d) };
+  return { zona: '', veredicto: 'fuera', cercana: best ? best.z.id : '', mensajero: best ? best.z.mensajero : '', distanciaM: best ? Math.round(best.d) : null };
+}
+// Punto dentro de la zona, lejos de los bordes, para poner el nombre.
+function puntoEtiqueta(pol) {
+  let s = 90, n = -90, w = 180, e = -180;
+  pol.forEach((p) => { s = Math.min(s, p[0]); n = Math.max(n, p[0]); w = Math.min(w, p[1]); e = Math.max(e, p[1]); });
+  let best = null;
+  for (let i = 1; i < 24; i++) for (let j = 1; j < 24; j++) {
+    const lat = s + (n - s) * i / 24, lng = w + (e - w) * j / 24;
+    if (!enPoligono(lat, lng, pol)) continue;
+    const d = distPoligono(lat, lng, pol);
+    if (!best || d > best.d) best = { lat: lat, lng: lng, d: d };
+  }
+  return best ? [best.lat, best.lng] : pol[0];
+}
+function decodificar(str) {
+  let i = 0, lat = 0, lng = 0; const out = [];
+  while (i < str.length) {
+    let b, shift = 0, res = 0;
+    do { b = str.charCodeAt(i++) - 63; res |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lat += (res & 1) ? ~(res >> 1) : (res >> 1);
+    shift = 0; res = 0;
+    do { b = str.charCodeAt(i++) - 63; res |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+    lng += (res & 1) ? ~(res >> 1) : (res >> 1);
+    out.push([lat / 1e5, lng / 1e5]);
+  }
+  return out;
+}
+
+// ---------------- mapa ----------------
+let map, capaZonas, capaRuta, capaParadas, mkCand = null, mkGps = null, circGps = null, mkMover = null;
+function iniciarMapa() {
+  map = L.map('map', { zoomControl: false }).setView([6.245, -75.575], 12);
+  map.attributionControl.setPosition('topright').setPrefix(false);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+  }).addTo(map);
+  capaZonas = L.layerGroup().addTo(map);
+  capaRuta = L.layerGroup().addTo(map);
+  capaParadas = L.layerGroup().addTo(map);
+  map.on('click', clickMapa);
+  map.on('dragstart', () => { if (S.siguiendo) { S.siguiendo = false; $('#fab-gps').classList.remove('on'); } });
+}
+
+function pintarZonas() {
+  capaZonas.clearLayers();
+  if (S.editZonas) return;
+  const propias = zonasPropias();
+  S.zonas.forEach((z) => {
+    const mia = propias.includes(z.id);
+    L.polygon(z.poligono, {
+      color: z.color, weight: mia ? 3 : 2, opacity: mia ? 0.95 : 0.75, fillColor: z.color,
+      fillOpacity: mia ? 0.1 : 0.05, dashArray: (mia || esAdmin()) ? null : '7 7', interactive: false
+    }).addTo(capaZonas);
+    const txt = mia ? 'TU ZONA' : String(z.nombreMensajero || z.mensajero).toUpperCase();
+    L.marker(puntoEtiqueta(z.poligono), {
+      interactive: false, keyboard: false,
+      icon: L.divIcon({ className: 'zlbl', html: '<span style="--c:' + colorTexto(z.color) + '">' + esc(txt) + '</span>', iconSize: [0, 0] })
+    }).addTo(capaZonas);
+  });
+}
+
+function veredictoClase(p) {
+  if (p.estado === 'entregada') return 'done';
+  if (p.veredicto === 'otra') return 'otra';
+  if (p.veredicto === 'fuera') return 'fuera';
+  if (p.veredicto === 'limite' && !esAdmin()) return 'lim';
+  return '';
+}
+function pintarParadas() {
+  capaParadas.clearLayers();
+  const nums = numerosRuta();
+  paradasVisibles().forEach((p) => {
+    if (p.lat == null || (S.mover && S.mover.id === p.id)) return;
+    let clase = 'pin ' + veredictoClase(p), estilo = '';
+    if (esAdmin() && p.estado !== 'entregada') {
+      clase = 'pin' + (p.veredicto === 'propia' ? '' : ' mal');
+      estilo = ' style="background:' + colorMensajero(p.mensajero) + '"';
+    }
+    if (S.sel === p.id) clase += ' sel';
+    const txt = p.estado === 'entregada' ? '✓' : (nums[p.id] || '•');
+    const m = L.marker([p.lat, p.lng], {
+      icon: L.divIcon({ className: '', html: '<div class="' + clase + '"' + estilo + '>' + txt + '</div>', iconSize: [30, 30], iconAnchor: [15, 15] }),
+      zIndexOffset: p.estado === 'entregada' ? -500 : (S.sel === p.id ? 1000 : 0), keyboard: false
+    }).addTo(capaParadas);
+    m.on('click', () => seleccionar(p.id, false));
+  });
+}
+
+function iconoCand() {
+  return L.divIcon({
+    className: '', iconSize: [36, 46], iconAnchor: [18, 44],
+    html: '<svg width="36" height="46" viewBox="0 0 36 46"><path d="M18 45C18 45 3 27.5 3 17a15 15 0 0 1 30 0C33 27.5 18 45 18 45z" fill="#D93025" stroke="#fff" stroke-width="2.5"/><circle cx="18" cy="17" r="5.5" fill="#fff"/></svg>'
+  });
+}
+// tenue = todavía no es la ubicación real (solo la ciudad): hay que moverlo.
+function ponerCand(lat, lng, tenue) {
+  if (!mkCand) {
+    mkCand = L.marker([lat, lng], { icon: iconoCand(), draggable: true, zIndexOffset: 2000, autoPan: true }).addTo(map);
+    mkCand.on('dragend', () => { const ll = mkCand.getLatLng(); moverCand(ll.lat, ll.lng); });
+  } else mkCand.setLatLng([lat, lng]);
+  mkCand.setOpacity(tenue ? 0.45 : 1);
+}
+function quitarCand() { if (mkCand) { map.removeLayer(mkCand); mkCand = null; } }
+
+function pintarGps() {
+  if (!S.gps) return;
+  const ll = [S.gps.lat, S.gps.lng];
+  if (!mkGps) {
+    circGps = L.circle(ll, { radius: S.gps.acc, color: '#1A73E8', weight: 1, fillOpacity: 0.1, interactive: false }).addTo(map);
+    mkGps = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="gps-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), interactive: false, keyboard: false, zIndexOffset: 1500 }).addTo(map);
+  } else { mkGps.setLatLng(ll); circGps.setLatLng(ll).setRadius(S.gps.acc); }
+  if (S.siguiendo) map.panTo(ll);
+}
+function iniciarGps() {
+  if (!('geolocation' in navigator) || S._watch != null) return;
+  S._watch = navigator.geolocation.watchPosition((pos) => {
+    S.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.min(pos.coords.accuracy || 50, 2000), t: Date.now() };
+    S.gpsError = null; pintarGps();
+  }, (err) => { S.gpsError = err.code; }, { enableHighAccuracy: true, maximumAge: 20000, timeout: 30000 });
+}
+
+function ajustarVista(forzarZona) {
+  const pts = paradasVisibles().filter((p) => p.lat != null && p.estado !== 'entregada').map((p) => [p.lat, p.lng]);
+  const pad = { paddingTopLeft: [20, alturaTop() + 20], paddingBottomRight: [20, 200] };
+  if (pts.length && !forzarZona) { map.fitBounds(L.latLngBounds(pts), Object.assign({ maxZoom: 16 }, pad)); return; }
+  const propias = zonasPropias(), zs = S.zonas.filter((z) => esAdmin() || propias.includes(z.id));
+  const todos = [];
+  (zs.length ? zs : S.zonas).forEach((z) => z.poligono.forEach((p) => todos.push(p)));
+  if (todos.length) map.fitBounds(L.latLngBounds(todos), pad);
+}
+function alturaTop() { const t = $('#top'); return t ? t.getBoundingClientRect().bottom : 150; }
+function medirTop() { document.documentElement.style.setProperty('--top-h', Math.round(alturaTop()) + 'px'); }
+
+// ---------------- listas y orden ----------------
+function paradasVisibles() {
+  if (!esAdmin()) return S.paradas;
+  return S.filtro ? S.paradas.filter((p) => p.mensajero === S.filtro) : S.paradas;
+}
+function rutaVigente() {
+  const r = S.ruta; if (!r || !r.orden || !r.orden.length) return null;
+  if (esAdmin() && S.filtro !== r.mensajero) return null;
+  return r;
+}
+function numerosRuta() {
+  const r = rutaVigente(), out = {};
+  if (r) r.orden.forEach((id, i) => { out[id] = i + 1; });
+  return out;
+}
+function rutaDesactualizada() {
+  const r = rutaVigente(); if (!r) return false;
+  const enRuta = {}; r.orden.forEach((id) => { enRuta[id] = true; });
+  return paradasVisibles().some((p) => p.estado === 'pendiente' && p.lat != null && !enRuta[p.id]);
+}
+function paradasOrdenadas() {
+  const nums = numerosRuta(), lista = paradasVisibles().slice();
+  const peso = (p) => p.estado === 'entregada' ? 3 : (nums[p.id] ? 0 : (p.lat == null ? 2 : 1));
+  lista.sort((a, b) => (peso(a) - peso(b)) || ((nums[a.id] || 0) - (nums[b.id] || 0)) || String(a.creado).localeCompare(String(b.creado)));
+  return lista;
+}
+// Hora estimada de llegada: desde AHORA, con los tramos que calculó Google + minutos por entrega.
+function horasEstimadas() {
+  const r = rutaVigente(), out = {}; if (!r) return out;
+  const porId = {}; S.paradas.forEach((p) => { porId[p.id] = p; });
+  const tramo = {}; (r.tramos || []).forEach((t) => { tramo[t.id] = t; });
+  const minEntrega = ((S.config && S.config.minPorEntrega) || 5) * 60000;
+  let t = Math.max(Date.now(), r.calculadaMs || 0);
+  r.orden.forEach((id) => {
+    const p = porId[id]; if (!p || p.estado !== 'pendiente') return;
+    t += ((tramo[id] && tramo[id].durS) || 0) * 1000; out[id] = t; t += minEntrega;
+  });
+  return out;
+}
+
+// ---------------- render general ----------------
+function renderTodo() {
+  pintarZonas(); pintarParadas(); dibujarRuta(); renderResumen(); renderLista(); renderFiltros();
+}
+
+function textoVeredicto(p) {
+  if (p.estado === 'entregada') return '';
+  switch (p.veredicto) {
+    case 'propia': return esAdmin() ? '<span class="ch ok">En su zona</span>' : '<span class="ch ok">Tu zona</span>';
+    case 'otra': return '<span class="ch otra">Zona de ' + esc(nombreDe((zona(p.zona) || {}).mensajero)) + '</span>';
+    case 'limite': return '<span class="ch lim">En el límite</span>';
+    case 'fuera': return '<span class="ch fuera">Fuera de zona</span>';
+    case 'sin_ubicacion': return '<span class="ch fuera">Sin ubicar</span>';
+    default: return '';
+  }
+}
+
+function renderResumen() {
+  const vis = paradasVisibles(), pend = vis.filter((p) => p.estado === 'pendiente');
+  const hechas = vis.length - pend.length;
+  const otra = pend.filter((p) => p.veredicto === 'otra' || p.veredicto === 'fuera').length;
+  const sinUb = pend.filter((p) => p.lat == null).length;
+  let tit = esAdmin() ? (S.filtro ? 'Ruta de ' + nombreDe(S.filtro) : 'Paradas de hoy') : 'Mi ruta de hoy';
+  let sub = '';
+  if (!vis.length) sub = esAdmin() ? 'Nadie ha cargado paradas hoy.' : 'Busca un pedido o toca «Pedidos de hoy».';
+  else {
+    sub = '<b>' + pend.length + '</b> pendiente' + (pend.length === 1 ? '' : 's') + (hechas ? ' · ' + hechas + ' entregada' + (hechas === 1 ? '' : 's') : '');
+    if (esAdmin() && !S.filtro) {
+      const por = {}; vis.forEach((p) => { por[p.mensajero] = (por[p.mensajero] || 0) + 1; });
+      sub += ' · ' + Object.keys(por).map((id) => esc(nombreDe(id)) + ' ' + por[id]).join(' · ');
+    }
+    const r = rutaVigente();
+    if (r) {
+      sub += ' · ' + km(r.totalM) + ' · ' + duracion(r.totalS) + ' manejando';
+      if (rutaDesactualizada()) sub += ' · <span class="al">ruta desactualizada</span>';
+    }
+    if (otra) sub += ' · <span class="al">' + otra + (esAdmin() ? ' fuera de su zona' : ' no son de tu zona') + '</span>';
+    if (sinUb) sub += ' · <span class="al r">' + sinUb + ' sin ubicar</span>';
+  }
+  $('#sh-tit').textContent = tit;
+  $('#sh-sub').innerHTML = sub;
+  $('#b-traer').classList.toggle('hidden', esAdmin() && !S.filtro);
+  $('#b-traer').textContent = esAdmin() ? 'Sus pedidos de hoy' : 'Pedidos de hoy';
+  $('#b-ruta').textContent = rutaVigente() && !rutaDesactualizada() ? 'Reordenar' : 'Ordenar ruta';
+}
+
+function renderLista() {
+  const cont = $('#lista'), lista = paradasOrdenadas();
+  if (!lista.length) {
+    cont.innerHTML = '<div class="vacio">' + (esAdmin()
+      ? 'Todavía no hay paradas hoy.<br>Busca una dirección para ver de qué zona es y asignarla.'
+      : 'No tienes paradas todavía.<br>Escribe el número del pedido o la dirección arriba, o toca <b>Pedidos de hoy</b> para traer los que te asignaron hoy.') + '</div>';
+    return;
+  }
+  const nums = numerosRuta(), etas = horasEstimadas();
+  let html = '', grupo = '';
+  lista.forEach((p) => {
+    const g = p.estado === 'entregada' ? 'Entregadas' : (nums[p.id] ? 'En orden de ruta' : (p.lat == null ? 'Sin ubicar: toca «Mover pin»' : 'Sin ordenar'));
+    if (g !== grupo) { html += '<div class="grupo">' + g + '</div>'; grupo = g; }
+    const clase = veredictoClase(p);
+    const num = p.estado === 'entregada' ? '✓' : (nums[p.id] || '•');
+    const numCls = p.estado === 'entregada' ? 'done' : (p.lat == null ? 'nada' : (clase === 'lim' ? '' : clase));
+    const estilo = esAdmin() && p.estado !== 'entregada' ? ' style="background:' + colorMensajero(p.mensajero) + '"' : '';
+    const l1 = [p.pedido ? '#' + esc(p.pedido) : '', esc(p.cliente), esAdmin() && !S.filtro ? esc(nombreDe(p.mensajero)) : ''].filter(Boolean).join(' · ') || 'Sin número de pedido';
+    let chips = textoVeredicto(p);
+    if (p.lat != null && p.estado === 'pendiente' && (p.precision === 'barrio' || p.precision === 'aproximada')) chips += '<span class="ch lim">' + (p.precision === 'barrio' ? 'Solo el barrio' : 'Ubicación aproximada') + '</span>';
+    if (etas[p.id]) chips += '<span class="ch eta">~' + hora(etas[p.id]) + '</span>';
+    html += '<div class="st' + (S.sel === p.id ? ' sel' : '') + (p.estado === 'entregada' ? ' done' : '') + '" data-id="' + esc(p.id) + '">' +
+      '<div class="st-main" data-acc="sel"><div class="st-num ' + numCls + '"' + estilo + '>' + num + '</div>' +
+      '<div class="st-txt"><div class="st-l1">' + l1 + '</div><div class="st-l2">' + esc(p.direccion || p.direccionGoogle || 'Sin dirección') +
+      (p.municipio ? ' · ' + esc(p.municipio) : '') + '</div>' + (chips ? '<div class="st-chips">' + chips + '</div>' : '') + '</div>' +
+      (p.lat != null && p.estado === 'pendiente' ? '<button class="st-go" data-acc="ir" type="button">Ir</button>' : '') + '</div>' +
+      '<div class="st-acts">' +
+      (p.lat != null ? '<button class="btn soft" data-acc="ir" type="button">Google Maps</button><button class="btn soft" data-acc="waze" type="button">Waze</button>' : '') +
+      (p.estado === 'pendiente' ? '<button class="btn primary" data-acc="entregada" type="button">✓ Entregada</button>' : '<button class="btn soft" data-acc="pendiente" type="button">Volver a pendiente</button>') +
+      '<button class="btn soft" data-acc="mover" type="button">Mover pin</button>' +
+      '<button class="btn ghost" data-acc="quitar" type="button">Quitar</button>' +
+      '</div></div>';
+  });
+  cont.innerHTML = html;
+}
+
+function renderFiltros() {
+  const f = $('#filtros');
+  if (!esAdmin()) { f.classList.add('hidden'); $('#top').classList.remove('con-filtros'); return; }
+  f.classList.remove('hidden'); $('#top').classList.add('con-filtros');
+  const cuenta = {}; S.paradas.forEach((p) => { cuenta[p.mensajero] = (cuenta[p.mensajero] || 0) + 1; });
+  f.innerHTML = '<button class="chip-f' + (S.filtro ? '' : ' on') + '" data-f="" type="button">Todos · ' + S.paradas.length + '</button>' +
+    S.mensajeros.map((m) => '<button class="chip-f' + (S.filtro === m.id ? ' on' : '') + '" data-f="' + esc(m.id) + '" type="button"><i style="background:' +
+      colorMensajero(m.id) + '"></i>' + esc(m.nombre) + ' · ' + (cuenta[m.id] || 0) + '</button>').join('');
+}
+
+function renderMunicipios() {
+  const muni = (S.config && S.config.municipios) || ['Medellín'];
+  if (muni.indexOf(S.municipio) < 0) S.municipio = muni[0];
+  $('#munis').innerHTML = muni.map((m) => '<button class="chip-m' + (m === S.municipio ? ' on' : '') + '" data-m="' + esc(m) + '" type="button">' + esc(m) + '</button>').join('');
+}
+
+function dibujarRuta() {
+  capaRuta.clearLayers();
+  const r = rutaVigente(); if (!r) return;
+  const porId = {}; S.paradas.forEach((p) => { porId[p.id] = p; });
+  let lineas = (r.polilineas || []).filter(Boolean).map(decodificar);
+  if (!lineas.length) {
+    const pts = [[r.origen.lat, r.origen.lng]];
+    r.orden.forEach((id) => { const p = porId[id]; if (p && p.lat != null) pts.push([p.lat, p.lng]); });
+    if (r.fin) pts.push([r.fin.lat, r.fin.lng]);
+    lineas = [pts];
+  }
+  lineas.forEach((pts) => {
+    L.polyline(pts, { color: '#fff', weight: 9, opacity: 0.9, interactive: false }).addTo(capaRuta);
+    L.polyline(pts, { color: '#2563EB', weight: 5, opacity: 0.9, interactive: false, dashArray: r.metodo === 'google' ? null : '8 8' }).addTo(capaRuta);
+  });
+  L.marker([r.origen.lat, r.origen.lng], {
+    interactive: false, keyboard: false,
+    icon: L.divIcon({ className: '', html: '<div class="pin-salida">' + (r.origen.tipo === 'gps' ? 'Yo' : 'B') + '</div>', iconSize: [26, 26], iconAnchor: [13, 13] })
+  }).addTo(capaRuta);
+}
+
+// ---------------- buscar ----------------
+function buscar(ev) {
+  if (ev) ev.preventDefault();
+  const texto = $('#q').value.trim();
+  if (!texto) { $('#q').focus(); return; }
+  $('#q').blur();
+  const seq = ++S.seqBuscar, args = { texto: texto, municipio: S.municipio };
+  if (S.pendiente && !esNumeroPedido(texto)) { args.pedido = S.pendiente.pedido; args.cliente = S.pendiente.cliente || ''; }
+  salirMover(); cerrarCard();
+  abrirCard('<div class="cargando"><div class="spin"></div>Buscando «' + esc(texto) + '»…</div>');
+  api('buscar', args).then((r) => {
+    if (seq !== S.seqBuscar) return;   // llegó tarde: ya buscaron otra cosa
+    if (r.ok) { S.pendiente = null; renderPendiente(); mostrarCandidato(r.candidato); return; }
+    if (r.code === 'PEDIDO_NO_ENCONTRADO' || r.code === 'PEDIDO_SIN_DIRECCION') {
+      S.pendiente = { pedido: r.pedido, cliente: r.cliente || '' }; renderPendiente();
+      $('#q').value = '';
+      abrirCard(tarjetaMensaje('info', '?', r.code === 'PEDIDO_SIN_DIRECCION' ? 'Ese pedido no tiene dirección' : 'No encontré ese pedido', r.error, true));
+      setTimeout(() => $('#q').focus(), 150);
+      return;
+    }
+    if (r.code === 'NO_UBICADA') {
+      S.cand = Object.assign({}, r.info, { lat: null, lng: null, precision: 'manual', corregida: true, motivo: r.error });
+      S.modo = 'colocar'; quitarCand();
+      if (r.aprox) { ponerCand(r.aprox.lat, r.aprox.lng, true); map.setView([r.aprox.lat, r.aprox.lng], 14); }
+      renderCard();
+      return;
+    }
+    abrirCard(tarjetaMensaje('fuera', '!', 'No se pudo buscar', r.error, true));
+  }).catch((e) => { if (seq === S.seqBuscar) abrirCard(tarjetaMensaje('fuera', '!', 'No se pudo buscar', e.message, true)); });
+}
+
+function renderPendiente() {
+  const p = S.pendiente;
+  $('#pend').classList.toggle('hidden', !p);
+  if (p) $('#pend-txt').textContent = 'Pedido ' + p.pedido + (p.cliente ? ' · ' + p.cliente : '') + ': escribe la dirección';
+  medirTop();
+}
+
+function mostrarCandidato(c) {
+  S.cand = Object.assign({}, c, { corregida: false });
+  S.modo = 'cand';
+  ponerCand(c.lat, c.lng);
+  map.setView([c.lat, c.lng], Math.max(map.getZoom(), 16));
+  renderCard();
+}
+
+function moverCand(lat, lng) {
+  if (!S.cand) return;
+  S.cand.lat = lat; S.cand.lng = lng; S.cand.corregida = true; S.cand.precision = 'manual'; S.cand.aviso = '';
+  S.modo = 'cand'; ponerCand(lat, lng); renderCard();
+}
+
+function veredictoHtml(z, c) {
+  const zn = zona(z.zona), quien = zn ? nombreDe(zn.mensajero) : '';
+  const prov = c && c.precision === 'barrio' && !c.corregida ? ' (aprox.)' : '';
+  if (z.veredicto === 'sin_ubicacion') {
+    return tarjetaMensaje('info', '📍', 'Toca en el mapa dónde es', (c && c.motivo ? c.motivo + ' ' : '') + 'Mientras no marques la casa no te puedo decir de qué zona es.');
+  }
+  if (esAdmin()) {
+    if (z.veredicto === 'otra' || z.veredicto === 'propia') return tarjetaMensaje('ok', '✓', 'Zona de ' + quien + prov, zn ? zn.nombre : '');
+    if (z.veredicto === 'limite') return tarjetaMensaje('lim', '↔', 'En el límite de la zona de ' + quien, 'A ' + km(z.distanciaM) + ' del borde. Decide tú a quién asignarla.');
+    return tarjetaMensaje('fuera', '✕', 'Fuera de todas las zonas', z.cercana ? 'La más cercana es la de ' + nombreDe((zona(z.cercana) || {}).mensajero) + ', a ' + km(z.distanciaM) + '.' : '');
+  }
+  if (z.veredicto === 'propia') return tarjetaMensaje('ok', '✓', 'Está en tu zona' + prov, zn ? zn.nombre : '');
+  if (z.veredicto === 'otra') return tarjetaMensaje('otra', '!', 'Es de la zona de ' + quien + prov, 'Avísale al coordinador. Si igual la llevas, queda marcada.');
+  if (z.veredicto === 'limite') {
+    return z.propia
+      ? tarjetaMensaje('lim', '↔', 'En el borde de tu zona', 'Queda a ' + km(z.distanciaM) + ' por fuera. Probablemente es tuya: confírmalo si hay duda.')
+      : tarjetaMensaje('lim', '↔', 'En el límite con la zona de ' + quien, 'A ' + km(z.distanciaM) + ' de su zona. Confírmalo con el coordinador.');
+  }
+  return tarjetaMensaje('fuera', '✕', 'Fuera de todas las zonas', z.cercana ? 'La más cercana es la de ' + nombreDe((zona(z.cercana) || {}).mensajero) + ', a ' + km(z.distanciaM) + '.' : '');
+}
+
+function tarjetaMensaje(tipo, ico, tit, sub, conCerrar) {
+  return '<div class="cv ' + tipo + '"><div class="cv-ico">' + ico + '</div><div><div class="cv-tit">' + esc(tit) + '</div>' +
+    (sub ? '<div class="cv-sub">' + esc(sub) + '</div>' : '') + '</div></div>' +
+    (conCerrar ? '<div class="ca"><button class="btn soft" data-card="cerrar" type="button">Entendido</button></div>' : '');
+}
+
+function renderCard() {
+  const c = S.cand; if (!c) return;
+  const z = clasificar(c.lat, c.lng, zonasPropias());
+  const PREC = {
+    exacta: 'Ubicación exacta', aproximada: 'Aproximada: revisa que el pin esté en la casa',
+    barrio: 'Solo encontré el barrio: arrastra el pin a la casa', manual: c.lat == null ? 'Falta marcar el punto' : 'Marcada a mano'
+  };
+  let html = veredictoHtml(z, c) + '<div class="cb">';
+  if (c.pedido || c.cliente) html += '<div class="cb-ped">' + (c.pedido ? 'Pedido #' + esc(c.pedido) : '') + (c.cliente ? (c.pedido ? ' · ' : '') + esc(c.cliente) : '') + '</div>';
+  html += '<div class="cb-dir">' + esc(c.direccion) + (c.municipio ? ' · ' + esc(c.municipio) : '') + '</div>';
+  if (c.direccionGoogle && !c.corregida) html += '<div class="cb-goo">Google: ' + esc(c.direccionGoogle) + '</div>';
+  html += '<span class="prec ' + esc(c.precision) + '">' + esc(PREC[c.precision] || c.precision) + '</span>';
+  if (c.aviso) html += '<div class="cb-aviso">' + esc(c.aviso) + '</div>';
+  if (c.asignadoA && !esAdmin() && c.asignadoA !== S.usuario.id) html += '<div class="cb-aviso">En la lista de PEDIDOS está asignado a ' + esc(nombreDe(c.asignadoA)) + '.</div>';
+  if (c.asignadoA && esAdmin() && z.mensajero && c.asignadoA !== z.mensajero) {
+    html += '<div class="cb-aviso">En la lista está asignado a ' + esc(nombreDe(c.asignadoA)) + ', pero la dirección cae en la zona de ' + esc(nombreDe(z.mensajero)) + '.</div>';
+  }
+  if (c.lat != null) html += '<div class="cb-hint">¿No es ahí? Arrastra el pin o toca el sitio correcto en el mapa.</div>';
+  if (esAdmin()) {
+    const sug = z.mensajero || (zona(z.cercana) || {}).mensajero || (S.mensajeros[0] || {}).id;
+    html += '<div class="cb-sel">Asignar a <select id="c-mens">' + S.mensajeros.map((m) =>
+      '<option value="' + esc(m.id) + '"' + (m.id === sug ? ' selected' : '') + '>' + esc(m.nombre) + '</option>').join('') + '</select></div>';
+  }
+  html += '</div><div class="ca"><button class="btn ghost" data-card="cerrar" type="button">Cancelar</button>';
+  if (c.lat == null) {
+    // Sin punto: se puede guardar igual y ubicarla después con «Mover pin» (p. ej. tras llamar al cliente).
+    html += '<button class="btn soft" data-card="agregar" type="button">Agregar sin ubicar</button></div>';
+  } else {
+    const fuera = z.veredicto === 'otra' || z.veredicto === 'fuera' || (z.veredicto === 'limite' && !z.propia);
+    const lbl = esAdmin() ? 'Agregar a su ruta' : (fuera ? 'Agregar igual' : 'Agregar a mi ruta');
+    html += '<button class="btn ' + (fuera && !esAdmin() ? 'warn' : 'primary') + '" data-card="agregar" type="button">' + lbl + '</button></div>';
+  }
+  abrirCard(html);
+}
+
+function abrirCard(html) {
+  $('#card').innerHTML = html; $('#card').classList.remove('hidden'); document.body.classList.add('con-card');
+}
+function cerrarCard(mantenerModo) {
+  $('#card').classList.add('hidden'); $('#card').innerHTML = ''; document.body.classList.remove('con-card');
+  if (!mantenerModo) { S.cand = null; S.modo = null; quitarCand(); }
+}
+
+function agregarCand(boton) {
+  const c = S.cand; if (!c) return;
+  const p = {
+    pedido: c.pedido || '', cliente: c.cliente || '', direccion: c.direccion || '', municipio: c.municipio || S.municipio,
+    lat: c.lat, lng: c.lng, precision: c.precision, corregida: !!c.corregida, fuente: c.fuente || 'manual', direccionGoogle: c.direccionGoogle || ''
+  };
+  if (esAdmin()) p.mensajero = $('#c-mens').value;
+  boton.disabled = true; boton.textContent = 'Guardando…';
+  api('agregarParadas', { paradas: [p] }, nuevoRid()).then((r) => {
+    if (!r.ok) { boton.disabled = false; boton.textContent = 'Reintentar'; toast(r.error, 'err'); return; }
+    aplicarParadas(r.paradas);
+    cerrarCard(); $('#q').value = '';
+    toast(esAdmin() ? 'Asignada a ' + nombreDe(p.mensajero) : 'Agregada a tu ruta', 'ok');
+  }).catch((e) => { boton.disabled = false; boton.textContent = 'Reintentar'; toast(e.message, 'err'); });
+}
+
+// ---------------- paradas ----------------
+function aplicarParadas(lista) {
+  S.paradas = Array.isArray(lista) ? lista : [];
+  if (S.sel && !S.paradas.some((p) => p.id === S.sel)) S.sel = null;
+  guardarLocal(); renderTodo();
+}
+// Copia en este celular para poder abrir la ruta aunque se caiga el internet.
+function guardarLocal() {
+  if (!S.usuario) return;
+  lsSet('cache', { hoy: S.hoy, usuario: S.usuario, zonas: S.zonas, mensajeros: S.mensajeros, config: S.config, paradas: S.paradas, ruta: S.ruta });
+}
+function hoyLocal() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function seleccionar(id, desdeLista) {
+  S.sel = S.sel === id && desdeLista ? null : id;
+  const p = S.paradas.find((x) => x.id === id);
+  pintarParadas(); renderLista();
+  if (p && p.lat != null && S.sel) map.panTo([p.lat, p.lng]);
+  if (!desdeLista && S.sel) {
+    $('#sheet').classList.add('abierta');
+    const el = document.querySelector('.st[data-id="' + CSS.escape(id) + '"]');
+    if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+function coord(p) { return (+p.lat).toFixed(6) + ',' + (+p.lng).toFixed(6); }
+
+function accionParada(id, acc) {
+  const p = S.paradas.find((x) => x.id === id); if (!p) return;
+  if (acc === 'sel') return seleccionar(id, true);
+  if (acc === 'ir') return abrirUrl('https://www.google.com/maps/dir/?api=1&destination=' + coord(p) + '&travelmode=driving');
+  if (acc === 'waze') return abrirUrl('https://waze.com/ul?ll=' + coord(p) + '&navigate=yes');
+  if (acc === 'mover') return empezarMover(p);
+  if (acc === 'quitar' && !confirm('¿Quitar esta parada de la ruta?')) return;
+  const estado = acc === 'quitar' ? 'quitada' : acc;
+  const antes = p.estado; p.estado = estado === 'quitada' ? antes : estado;   // marca optimista
+  renderTodo();
+  api('actualizarParada', { id: id, estado: estado }, nuevoRid()).then((r) => {
+    if (!r.ok) { p.estado = antes; renderTodo(); toast(r.error, 'err'); return; }
+    aplicarParadas(r.paradas);
+    if (estado === 'entregada') { S.sel = null; renderLista(); pintarParadas(); toast('Entregada ✓', 'ok'); }
+    if (estado === 'quitada') toast('Parada quitada');
+  }).catch((e) => { p.estado = antes; renderTodo(); toast(e.message, 'err'); });
+}
+
+// Con un enlace real: en el celular abre la app de Google Maps / Waze sin sacar al mensajero de esta página.
+function abrirUrl(url) {
+  const a = document.createElement('a');
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+function abrirGoogleVarias() {
+  const pend = paradasOrdenadas().filter((p) => p.estado === 'pendiente' && p.lat != null);
+  if (!pend.length) { toast('No hay paradas pendientes con ubicación.'); return; }
+  if (!rutaVigente()) toast('Aún no ordenaste la ruta: van en el orden de la lista.');
+  const tramo = pend.slice(0, 10), dest = tramo[tramo.length - 1], wps = tramo.slice(0, -1);
+  let url = 'https://www.google.com/maps/dir/?api=1&destination=' + coord(dest) + '&travelmode=driving';
+  if (wps.length) url += '&waypoints=' + encodeURIComponent(wps.map(coord).join('|'));
+  if (pend.length > 10) toast('Google Maps acepta 10 paradas por viaje: van las 10 siguientes.');
+  abrirUrl(url);
+}
+
+// Mover el pin de una parada ya guardada.
+function empezarMover(p) {
+  cerrarCard();
+  S.mover = { id: p.id, lat: p.lat, lng: p.lng };
+  S.modo = 'mover'; document.body.classList.add('editando');
+  const ll = p.lat != null ? [p.lat, p.lng] : map.getCenter();
+  if (p.lat == null) { S.mover.lat = null; S.mover.lng = null; }
+  mkMover = L.marker(ll, { icon: iconoCand(), draggable: true, zIndexOffset: 2000, autoPan: true, opacity: p.lat == null ? 0.45 : 1 }).addTo(map);
+  mkMover.on('dragend', () => { const x = mkMover.getLatLng(); S.mover.lat = x.lat; S.mover.lng = x.lng; mkMover.setOpacity(1); textoMover(); });
+  map.setView(ll, Math.max(map.getZoom(), 17));
+  pintarParadas();
+  $('#editbar').classList.remove('hidden');
+  textoMover();
+  $('#eb-si').onclick = guardarMover; $('#eb-no').onclick = () => salirMover();
+}
+function textoMover() {
+  const m = S.mover; if (!m) return;
+  const p = S.paradas.find((x) => x.id === m.id) || {};
+  let t = 'Arrastra el pin o toca el mapa donde queda ' + (p.pedido ? 'el pedido #' + p.pedido : 'esta parada') + '.';
+  if (m.lat != null) {
+    const dueno = mensajero(p.mensajero), z = clasificar(m.lat, m.lng, dueno ? (dueno.zonas || []) : zonasPropias());
+    t += ' Queda: ' + ({ propia: esAdmin() ? 'en su zona' : 'en tu zona', otra: 'en la zona de ' + nombreDe((zona(z.zona) || {}).mensajero), limite: 'en el límite', fuera: 'fuera de zona' }[z.veredicto] || '—') + '.';
+  }
+  $('#eb-txt').textContent = t;
+  $('#eb-si').disabled = m.lat == null;
+}
+function guardarMover() {
+  const m = S.mover; if (!m || m.lat == null) return;
+  $('#eb-si').disabled = true;
+  api('actualizarParada', { id: m.id, lat: m.lat, lng: m.lng }, nuevoRid()).then((r) => {
+    $('#eb-si').disabled = false;
+    if (!r.ok) { toast(r.error, 'err'); return; }
+    const p = S.paradas.find((x) => x.id === m.id);
+    salirMover(); aplicarParadas(r.paradas);
+    toast(p && p.direccion ? 'Ubicación corregida. La próxima vez esa dirección sale ahí.' : 'Ubicación guardada.', 'ok');
+  }).catch((e) => { $('#eb-si').disabled = false; toast(e.message, 'err'); });
+}
+function salirMover() {
+  if (!S.mover && !mkMover) return;
+  if (mkMover) { map.removeLayer(mkMover); mkMover = null; }
+  S.mover = null; S.modo = null; document.body.classList.remove('editando');
+  $('#editbar').classList.add('hidden'); pintarParadas();
+}
+
+function clickMapa(e) {
+  if (S.editZonas) return;
+  if (S.modo === 'cand' || S.modo === 'colocar') { moverCand(e.latlng.lat, e.latlng.lng); return; }
+  if (S.modo === 'mover' && mkMover) {
+    mkMover.setLatLng(e.latlng).setOpacity(1); S.mover.lat = e.latlng.lat; S.mover.lng = e.latlng.lng; textoMover(); return;
+  }
+  if (S.sel) { S.sel = null; pintarParadas(); renderLista(); }
+}
+
+// ---------------- traer pedidos del día ----------------
+function traerHoy() {
+  const args = esAdmin() ? { mensajero: S.filtro } : {};
+  if (esAdmin() && !S.filtro) { toast('Elige primero un mensajero arriba.'); return; }
+  const tot = { encontrados: 0, agregados: 0, yaEstaban: 0, sinUbicar: 0 };
+  let ronda = 0;
+  const paso = () => {
+    ronda++;
+    ocupado(true, ronda === 1 ? 'Buscando los pedidos de hoy…' : 'Ubicando más direcciones…');
+    return api('importarHoy', args, nuevoRid()).then((r) => {
+      if (!r.ok) { ocupado(false); toast(r.error, 'err'); return; }
+      if (ronda === 1) { tot.encontrados = r.encontrados; tot.yaEstaban = r.yaEstaban; }
+      tot.agregados += r.agregados; tot.sinUbicar += r.sinUbicar;
+      aplicarParadas(r.paradas);
+      if (r.faltan > 0 && ronda < 8) return paso();
+      ocupado(false);
+      if (!tot.encontrados) { toast(esAdmin() ? 'No hay pedidos de hoy asignados a ' + nombreDe(S.filtro) + ' en la pestaña PEDIDOS.' : 'No hay pedidos de hoy a tu nombre en la lista. Búscalos por número o dirección.'); return; }
+      let msg = tot.agregados ? 'Agregué ' + tot.agregados : 'No había pedidos nuevos';
+      if (tot.yaEstaban) msg += ' · ' + tot.yaEstaban + ' ya estaban';
+      if (tot.sinUbicar) msg += ' · ' + tot.sinUbicar + ' sin ubicar';
+      toast(msg, tot.sinUbicar ? '' : 'ok');
+      $('#sheet').classList.add('abierta');
+      ajustarVista();
+    });
+  };
+  paso().catch((e) => { ocupado(false); toast(e.message, 'err'); });
+}
+
+// ---------------- ordenar ruta ----------------
+function abrirModalRuta() {
+  if (esAdmin() && !S.filtro) { toast('Elige primero un mensajero arriba.'); return; }
+  const pend = paradasVisibles().filter((p) => p.estado === 'pendiente' && p.lat != null);
+  if (!pend.length) { toast('No hay paradas pendientes con ubicación.'); return; }
+  const gpsOk = S.gps && (Date.now() - S.gps.t) < 10 * 60000;
+  const b = S.config && S.config.bodega, bodOk = b && isFinite(b.lat) && b.lat !== 0;
+  $('#r-opc-gps').classList.toggle('off', !gpsOk);
+  $('#r-gps-nota').textContent = gpsOk ? 'Con el GPS del celular' : (S.gpsError === 1 ? 'Diste «no» al permiso de ubicación' : 'Aún no tengo tu ubicación');
+  $('#r-bod-nota').textContent = bodOk ? b.nombre : 'Falta configurar la bodega';
+  const org = gpsOk && !esAdmin() ? 'gps' : 'bodega';
+  $$('input[name="r-org"]').forEach((i) => { i.checked = i.value === org; i.disabled = (i.value === 'gps' && !gpsOk) || (i.value === 'bodega' && !bodOk); });
+  $('#r-volver').disabled = !bodOk;
+  $('#r-mens-wrap').classList.add('hidden');
+  $('#m-ruta').classList.remove('hidden');
+}
+function calcularRuta() {
+  const org = ($('input[name="r-org"]:checked') || {}).value || 'bodega';
+  const args = { volver: $('#r-volver').checked };
+  if (org === 'gps' && S.gps) args.origen = { lat: S.gps.lat, lng: S.gps.lng };
+  if (esAdmin()) args.mensajero = S.filtro;
+  $('#m-ruta').classList.add('hidden');
+  const seq = ++S.seqRuta;
+  ocupado(true, 'Calculando la mejor ruta…');
+  api('optimizarRuta', args, nuevoRid()).then((r) => {
+    if (seq !== S.seqRuta) return;
+    ocupado(false);
+    if (!r.ok) { toast(r.error, 'err'); return; }
+    S.ruta = r.ruta; aplicarParadas(r.paradas);
+    const rr = r.ruta;
+    toast(rr.orden.length + ' paradas · ' + km(rr.totalM) + ' · ' + duracion(rr.totalS) + (rr.metodo === 'google' ? '' : ' (estimado)'), rr.aviso ? '' : 'ok');
+    if (rr.aviso) setTimeout(() => toast(rr.aviso), 3400);
+    $('#sheet').classList.add('abierta');
+    ajustarVista();
+  }).catch((e) => { if (seq === S.seqRuta) { ocupado(false); toast(e.message, 'err'); } });
+}
+
+// ---------------- editar zonas (coordinador) ----------------
+function cargarGeoman() {
+  if (L.PM) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = GEOMAN + '.css'; document.head.appendChild(css);
+    const s = document.createElement('script'); s.src = GEOMAN + '.min.js';
+    s.onload = () => res(); s.onerror = () => rej(new Error('No cargó el editor de zonas. Revisa el internet.'));
+    document.head.appendChild(s);
+  });
+}
+function editarZonas() {
+  cerrarModales(); cerrarCard(); salirMover();
+  ocupado(true, 'Abriendo el editor…');
+  cargarGeoman().then(() => {
+    ocupado(false);
+    // Geoman se engancha a los mapas que se crean DESPUÉS de cargarlo; este ya existía.
+    if (!map.pm) { map.pm = new L.PM.Map(map); if (map.pm.setGlobalOptions) map.pm.setGlobalOptions({}); }
+    capaZonas.clearLayers(); capaParadas.clearLayers(); capaRuta.clearLayers();
+    S.editZonas = S.zonas.map((z) => {
+      const e = { z: z, pol: L.polygon(z.poligono, { color: z.color, weight: 2, fillOpacity: 0.05 }).addTo(capaZonas), cambiada: false };
+      e.pol.on('pm:edit', () => { e.cambiada = true; });
+      return e;
+    });
+    document.body.classList.add('editando');
+    $('#eb-si').disabled = false;
+    $('#eb-zonas').classList.remove('hidden');
+    $('#editbar').classList.remove('hidden');
+    $('#eb-si').onclick = guardarZonas; $('#eb-no').onclick = salirZonas;
+    elegirZonaEdit(S.editZonas[0].z.id);
+  }).catch((e) => { ocupado(false); toast(e.message, 'err'); });
+}
+// Se edita UNA zona a la vez: con las tres activas son cientos de puntos encima.
+function elegirZonaEdit(id) {
+  let activa = null;
+  S.editZonas.forEach((e) => {
+    const on = e.z.id === id;
+    if (on) { activa = e; e.pol.pm.enable({ allowSelfIntersection: false, snappable: false }); } else e.pol.pm.disable();
+    e.pol.setStyle({ weight: on ? 3 : 2, opacity: on ? 1 : 0.55, fillOpacity: on ? 0.14 : 0.04 });
+  });
+  $('#eb-zonas').innerHTML = S.editZonas.map((e) => '<button class="chip-f' + (e.z.id === id ? ' on' : '') + '" data-z="' + esc(e.z.id) +
+    '" type="button"><i style="background:' + e.z.color + '"></i>' + esc(e.z.nombreMensajero) + (e.cambiada ? ' •' : '') + '</button>').join('');
+  $('#eb-txt').textContent = 'Zona de ' + activa.z.nombreMensajero + ': arrastra los puntos blancos para mover el borde. El punto del medio de un tramo crea uno nuevo; clic derecho borra un punto.';
+  map.fitBounds(activa.pol.getBounds(), { paddingTopLeft: [16, alturaTop() + 10], paddingBottomRight: [16, 170] });
+}
+function guardarZonas() {
+  const cambiadas = S.editZonas.filter((e) => e.cambiada);
+  if (!cambiadas.length) { toast('No moviste ningún borde.'); salirZonas(); return; }
+  const zonas = cambiadas.map((e) => ({ id: e.z.id, poligono: e.pol.getLatLngs()[0].map((ll) => [+ll.lat.toFixed(5), +ll.lng.toFixed(5)]) }));
+  $('#eb-si').disabled = true;
+  api('guardarZonas', { zonas: zonas }, nuevoRid()).then((r) => {
+    $('#eb-si').disabled = false;
+    if (!r.ok) { toast(r.error, 'err'); return; }
+    S.zonas = r.zonas; salirZonas(); aplicarParadas(r.paradas);
+    toast('Zonas guardadas. Ya las ven todos.', 'ok');
+  }).catch((e) => { $('#eb-si').disabled = false; toast(e.message, 'err'); });
+}
+function salirZonas() {
+  if (S.editZonas) S.editZonas.forEach((e) => { try { e.pol.pm.disable(); } catch (x) { } });
+  S.editZonas = null; document.body.classList.remove('editando');
+  $('#editbar').classList.add('hidden'); $('#eb-zonas').classList.add('hidden');
+  renderTodo();
+}
+
+// ---------------- sesión ----------------
+function cargarLogin() {
+  $('#v-login').classList.remove('hidden'); $('#v-app').classList.add('hidden');
+  $('#login-paso1').classList.remove('hidden'); $('#login-paso2').classList.add('hidden');
+  if (!EN_GAS && API_URL.indexOf('PEGA_AQUI') === 0) {
+    $('#login-aviso').classList.remove('hidden');
+    $('#login-aviso').textContent = 'Falta configurar: pega la URL /exec del Apps Script en la constante API_URL de rutas.html.';
+    $('#login-lista').innerHTML = ''; return;
+  }
+  api('mensajeros').then((r) => {
+    if (!r.ok) throw new Error(r.error);
+    $('#login-lista').innerHTML = r.mensajeros.map((m) =>
+      '<button class="m-btn" type="button" data-id="' + esc(m.id) + '" data-nom="' + esc(m.nombre) + '"><div class="m-ava' + (m.rol === 'admin' ? ' adm' : '') + '">' +
+      esc(iniciales(m.nombre)) + '</div><div><div class="m-nom">' + esc(m.nombre) + '</div><div class="m-rol">' +
+      (m.rol === 'admin' ? 'Coordinación' : 'Mensajero') + '</div></div></button>').join('');
+  }).catch((e) => {
+    $('#login-lista').innerHTML = '<div class="login-cargando">No pude conectar: ' + esc(e.message) + '<br><button class="btn link" type="button" id="login-reint">Reintentar</button></div>';
+  });
+}
+function elegirUsuario(id, nombre) {
+  S._loginId = id;
+  $('#lp-ava').textContent = iniciales(nombre); $('#lp-nom').textContent = nombre;
+  $('#lp-err').textContent = ''; $('#lp-pin').value = '';
+  $('#login-paso1').classList.add('hidden'); $('#login-paso2').classList.remove('hidden');
+  setTimeout(() => $('#lp-pin').focus(), 100);
+}
+function entrar(ev) {
+  ev.preventDefault();
+  const pin = $('#lp-pin').value.trim();
+  if (!pin) { $('#lp-err').textContent = 'Escribe tu PIN.'; return; }
+  $('#lp-go').disabled = true; $('#lp-go').textContent = 'Entrando…';
+  api('login', { id: S._loginId, pin: pin }).then((r) => {
+    $('#lp-go').disabled = false; $('#lp-go').textContent = 'Entrar';
+    if (!r.ok) { $('#lp-err').textContent = r.error; $('#lp-pin').value = ''; $('#lp-pin').focus(); return; }
+    S.token = r.token; lsSet('token', r.token);
+    arrancar(r);
+  }).catch((e) => { $('#lp-go').disabled = false; $('#lp-go').textContent = 'Entrar'; $('#lp-err').textContent = e.message; });
+}
+
+function aplicarEstado(r) {
+  const cambioDia = S.hoy && S.hoy !== r.hoy;
+  S.hoy = r.hoy; S.usuario = r.usuario; S.mensajeros = r.mensajeros || []; S.config = r.config || {};
+  S.zonas = (r.zonas || []).map((z) => Object.assign({}, z, { color: /^#[0-9a-fA-F]{3,8}$/.test(z.color) ? z.color : '#555555' }));
+  if (r.ruta !== undefined && (r.ruta || cambioDia || !S.ruta)) S.ruta = r.ruta;
+  if (esAdmin() && S.ruta && S.ruta.mensajero !== S.filtro) S.ruta = null;
+  S.paradas = r.paradas || [];
+  S.ultimoRefresco = Date.now();
+}
+
+function arrancar(r) {
+  aplicarEstado(r);
+  $('#v-login').classList.add('hidden'); $('#v-app').classList.remove('hidden');
+  $('#user-ava').textContent = iniciales(S.usuario.nombre); $('#user-nom').textContent = S.usuario.nombre;
+  $('#bar-fecha').textContent = fechaLarga();
+  $('#mm-zonas').classList.toggle('hidden', !esAdmin());
+  $('#q').placeholder = esAdmin() ? 'Dirección o pedido: ¿de qué zona es?' : 'N° de pedido o dirección';
+  S.municipio = lsGet('municipio', 'Medellín');
+  renderMunicipios();
+  if (!map) iniciarMapa();
+  medirTop();
+  setTimeout(() => { map.invalidateSize(); medirTop(); ajustarVista(); }, 60);
+  renderTodo(); guardarLocal();
+  if (!esAdmin()) iniciarGps();
+}
+
+function refrescar(silencioso) {
+  if (!S.token) return Promise.resolve();
+  return api('estado').then((r) => {
+    if (!r.ok) { if (!silencioso) toast(r.error, 'err'); return; }
+    aplicarEstado(r); renderMunicipios(); renderTodo(); guardarLocal();
+    if (!silencioso) toast('Actualizado', 'ok');
+  }).catch((e) => { if (!silencioso) toast(e.message, 'err'); });
+}
+
+function salir(vencida) {
+  S.token = null; S.usuario = null; S.paradas = []; S.ruta = null; S.filtro = ''; S.sel = null; S.pendiente = null;
+  $('#sheet').classList.remove('abierta'); renderPendiente();
+  lsDel('token'); lsDel('cache');
+  cerrarModales(); cerrarCard(); salirMover();
+  if (S.editZonas) salirZonas();
+  cargarLogin();
+  if (vencida) setTimeout(() => toast('Tu sesión se venció. Entra de nuevo.'), 200);
+}
+
+function cerrarModales() { $$('.velo').forEach((v) => v.classList.add('hidden')); }
+
+// ---------------- eventos ----------------
+function conectarEventos() {
+  $('#login-lista').addEventListener('click', (e) => {
+    if (e.target.id === 'login-reint') { cargarLogin(); return; }
+    const b = e.target.closest('.m-btn'); if (b) elegirUsuario(b.dataset.id, b.dataset.nom);
+  });
+  $('#login-paso2').addEventListener('submit', entrar);
+  $('#lp-otro').addEventListener('click', () => { $('#login-paso2').classList.add('hidden'); $('#login-paso1').classList.remove('hidden'); });
+
+  $('#f-buscar').addEventListener('submit', buscar);
+  // Solo cambia una clase por tecla (no redibuja nada).
+  $('#q').addEventListener('input', () => { $('#munis').classList.toggle('apagado', esNumeroPedido($('#q').value)); });
+  $('#munis').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip-m'); if (!b) return;
+    S.municipio = b.dataset.m; lsSet('municipio', S.municipio);
+    $$('.chip-m').forEach((x) => x.classList.toggle('on', x === b));
+  });
+  $('#filtros').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip-f'); if (!b) return;
+    S.filtro = b.dataset.f || ''; S.sel = null;
+    if (S.ruta && S.ruta.mensajero !== S.filtro) S.ruta = null;
+    renderTodo(); ajustarVista();
+  });
+  $('#pend-x').addEventListener('click', () => { S.pendiente = null; renderPendiente(); });
+  $('#eb-zonas').addEventListener('click', (e) => { const b = e.target.closest('[data-z]'); if (b && S.editZonas) elegirZonaEdit(b.dataset.z); });
+
+  $('#card').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-card]'); if (!b) return;
+    if (b.dataset.card === 'cerrar') cerrarCard();
+    if (b.dataset.card === 'agregar') agregarCand(b);
+  });
+
+  $('#sh-head').addEventListener('click', () => $('#sheet').classList.toggle('abierta'));
+  $('#lista').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-acc]'), st = e.target.closest('.st'); if (!b || !st) return;
+    e.stopPropagation(); accionParada(st.dataset.id, b.dataset.acc);
+  });
+  $('#b-traer').addEventListener('click', traerHoy);
+  $('#b-ruta').addEventListener('click', abrirModalRuta);
+  $('#b-gmaps').addEventListener('click', abrirGoogleVarias);
+  $('#r-go').addEventListener('click', calcularRuta);
+
+  $('#fab-gps').addEventListener('click', () => {
+    iniciarGps();
+    if (!S.gps) { toast(S.gpsError === 1 ? 'Activa el permiso de ubicación del navegador.' : 'Buscando tu ubicación…'); return; }
+    S.siguiendo = true; $('#fab-gps').classList.add('on'); map.setView([S.gps.lat, S.gps.lng], Math.max(map.getZoom(), 16));
+  });
+  $('#fab-fit').addEventListener('click', () => ajustarVista());
+
+  $('#btn-user').addEventListener('click', () => {
+    $('#mm-nom').textContent = S.usuario.nombre;
+    $('#mm-quien').textContent = esAdmin() ? 'Coordinación' : 'Mensajero · ' + S.zonas.filter((z) => zonasPropias().includes(z.id)).map((z) => z.nombre).join(', ');
+    $('#m-menu').classList.remove('hidden');
+  });
+  $('#mm-act').addEventListener('click', () => { cerrarModales(); refrescar(false); });
+  $('#mm-zonas').addEventListener('click', editarZonas);
+  $('#mm-salir').addEventListener('click', () => { if (confirm('¿Cerrar sesión en este celular?')) salir(false); });
+  $$('.velo').forEach((v) => v.addEventListener('click', (e) => { if (e.target === v || e.target.closest('[data-cerrar]')) v.classList.add('hidden'); }));
+
+  window.addEventListener('resize', () => { medirTop(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && S.token && Date.now() - S.ultimoRefresco > 60000 && !S.editZonas && !S.mover) refrescar(true);
+  });
+}
+
+// ---------------- inicio ----------------
+function inicio() {
+  conectarEventos();
+  const token = lsGet('token', null);
+  if (!token) { cargarLogin(); return; }
+  S.token = token;
+  const cache = lsGet('cache', null);
+  const cacheHoy = cache && cache.usuario && cache.hoy === hoyLocal() ? cache : null;
+  ocupado(true, 'Abriendo…');
+  api('estado').then((r) => {
+    ocupado(false);
+    if (!r.ok) { salir(false); return; }
+    if (cacheHoy && cacheHoy.hoy === r.hoy && cacheHoy.usuario.id === r.usuario.id && !r.ruta && cacheHoy.ruta) r.ruta = cacheHoy.ruta;
+    arrancar(r);
+  }).catch((e) => {
+    ocupado(false);
+    if (!S.token) return;                 // sesión vencida: salir() ya mostró el login
+    if (cacheHoy) { arrancar(cacheHoy); toast('Sin conexión: te muestro lo último guardado en este celular.', 'err'); }
+    else { cargarLogin(); toast(e.message, 'err'); }
+  });
+}
+
+inicio();
+})();
+</script>
+</body>
+</html>
