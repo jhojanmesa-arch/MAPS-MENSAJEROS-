@@ -224,39 +224,54 @@ body.con-card .sheet,body.editando .sheet{display:none}
 .toast{position:fixed;z-index:1100;left:50%;top:calc(var(--top-h) + 16px);transform:translate(-50%,-20px);opacity:0;pointer-events:none;background:var(--blk);color:#fff;font-size:13px;font-weight:700;padding:10px 16px;border-radius:12px;box-shadow:var(--sh);transition:all .25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 .toast.ok{background:var(--green)} .toast.err{background:var(--red)}
-/* ---------- navegar dentro de la app ---------- */
-body.navegando .top,body.navegando .sheet,body.navegando #card{display:none!important}
-body.navegando .fabs{top:calc(env(safe-area-inset-top) + 150px)}
-.nav{position:fixed;z-index:800;top:calc(env(safe-area-inset-top) + 8px);left:8px;right:8px;max-width:560px;margin:0 auto}
-.nav-top{background:var(--green-deep);color:#fff;border-radius:16px;padding:12px 12px 12px 10px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh)}
-.nav-ico{font-size:36px;font-weight:800;width:48px;text-align:center;line-height:1;flex-shrink:0}
+/* ---------- navegar dentro de la app (como Google Maps) ---------- */
+body.navegando .top,body.navegando .sheet,body.navegando #card,body.navegando .fabs{display:none!important}
+.nav{position:fixed;z-index:800;top:calc(env(safe-area-inset-top) + 8px);left:8px;right:8px;max-width:560px;margin:0 auto;pointer-events:none}
+.nav>*{pointer-events:auto}
+.nav-top{background:#0B6B55;color:#fff;border-radius:16px;padding:14px 14px 14px 10px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh)}
+.nav-ico{font-size:40px;font-weight:800;width:52px;text-align:center;line-height:1;flex-shrink:0}
 .nav-txt{flex:1;min-width:0}
-.nav-dist{font-size:24px;font-weight:800;line-height:1.1}
-.nav-ins{font-size:14.5px;font-weight:700;line-height:1.3}
-.nav-ahora{font-size:11.5px;opacity:.75;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nav-voz{border:none;background:rgba(255,255,255,.16);color:#fff;width:42px;height:42px;border-radius:50%;font-size:18px;flex-shrink:0}
+.nav-dist{font-size:15px;font-weight:700;opacity:.9;line-height:1.2}
+.nav-calle{font-size:25px;font-weight:800;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.nav-luego{display:inline-flex;align-items:center;gap:8px;background:#085443;color:#fff;font-weight:800;font-size:15px;padding:8px 14px;border-radius:0 0 14px 14px;margin-left:10px;box-shadow:var(--sh)}
+.nav-luego span{font-size:22px;line-height:1}
 .nav-cam{margin-top:6px;background:var(--red);color:#fff;border-radius:12px;padding:10px 12px;font-weight:800;font-size:14.5px;box-shadow:var(--sh)}
-.navbot{position:fixed;z-index:800;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 8px);max-width:560px;margin:0 auto;background:#fff;border-radius:18px;padding:12px;box-shadow:0 8px 30px rgba(15,13,14,.25)}
-.nb-fila{display:flex;align-items:center;gap:10px}
+.nav-fabs{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom) + 190px);display:flex;flex-direction:column;gap:10px}
+.nav-fabs .fab{width:50px;height:50px;font-size:20px}
+.nav-centrar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom) + 196px);border:none;background:#fff;color:#1A73E8;font-weight:800;font-size:14px;padding:12px 18px;border-radius:24px;box-shadow:var(--sh)}
+.navbot{position:fixed;z-index:800;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:#fff;border-radius:20px 20px 0 0;padding:14px 14px calc(env(safe-area-inset-bottom) + 12px);box-shadow:0 -6px 24px rgba(15,13,14,.2)}
+.nb-fila{display:flex;align-items:center;gap:12px}
 .nb-info{flex:1;min-width:0}
-.nb-l1{font-size:11.5px;font-weight:800;color:var(--pink-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nb-l2{font-size:14px;font-weight:700;line-height:1.3}
-.nb-eta{font-size:12px;color:var(--blue);font-weight:700;margin-top:2px}
-.nb-vel{width:54px;height:54px;border-radius:50%;border:3px solid var(--g200);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:18px;line-height:1;flex-shrink:0}
+.nb-min{font-size:28px;font-weight:800;color:#188038;line-height:1.1}
+.nb-km{font-size:14px;color:var(--g600);font-weight:600}
+.nb-salir{border:none;background:#D93025;color:#fff;font-weight:800;font-size:16px;padding:14px 22px;border-radius:26px;flex-shrink:0}
+.nb-par{font-size:12.5px;color:var(--graphite);font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-top:1px solid var(--g100);padding-top:8px}
+.nb-vel{width:50px;height:50px;border-radius:50%;border:3px solid var(--g200);display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:17px;line-height:1;flex-shrink:0}
 .nb-vel small{font-size:9px;font-weight:700;color:var(--g400);margin-top:2px}
 .nb-vel.alto{border-color:var(--red);color:var(--red);background:var(--red-light)}
 .nb-acts{display:flex;gap:6px;margin-top:10px}
 .nb-acts .btn{flex:1;padding:8px 6px}
-.nb-acts .btn.primary{flex:1.6}
+.nb-acts .btn.primary{flex:1.5}
 .btn.pulso{background:var(--green);animation:pulso 1.2s infinite}
 @keyframes pulso{0%,100%{box-shadow:0 0 0 0 rgba(15,110,86,.5)}50%{box-shadow:0 0 0 8px rgba(15,110,86,0)}}
+.gps-flecha{width:40px;height:40px;transition:transform .4s}
 .cam-ico{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .via{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid #2563EB;box-shadow:0 1px 5px rgba(0,0,0,.4)}
 .via-fija{width:12px;height:12px;border-radius:50%;background:#fff;border:3px solid #2563EB}
-.st-mv{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
-.st-mv button{width:40px;height:30px;border:none;border-radius:9px;background:var(--g100);font-size:16px;font-weight:800}
-.st-mv button:disabled{opacity:.3}
-.edit-hint{font-size:12.5px;color:var(--g600);padding:6px 6px 10px;line-height:1.45}
+/* editar paradas, como Google */
+.ed-fila{display:flex;align-items:center;gap:10px;padding:5px 2px;background:#fff;border:none;border-radius:12px;margin:0}
+.ed-fila.st{border:none;overflow:visible}
+.ed-pt{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;background:#fff}
+.ed-pt.yo{border:none;background:#1A73E8;box-shadow:0 0 0 4px #D2E3FC;width:14px;height:14px;margin:0 6px}
+.ed-caja{flex:1;min-width:0;border:1.5px solid var(--g200);border-radius:10px;padding:9px 11px;font-size:14px;font-weight:600;background:#fff}
+.ed-nom{font-size:12px;font-weight:800;color:var(--pink-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-dir{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-drag{border:none;background:none;font-size:22px;color:var(--g600);width:38px;height:44px;touch-action:none;cursor:grab;flex-shrink:0}
+.ed-x{border:none;background:none;font-size:18px;color:var(--g600);width:32px;height:44px;flex-shrink:0}
+.ed-input{font-family:inherit;outline:none}
+.ed-input:focus{border-color:#1A73E8}
+.ed-fila.arrastrando{position:relative;z-index:5;box-shadow:0 8px 24px rgba(15,13,14,.25);opacity:.95}
+.edit-hint{font-size:12.5px;color:var(--g600);padding:8px 6px 10px;line-height:1.45}
 /* ---------- cargar desde Bukapp ---------- */
 .bk-txt{width:100%;height:150px;border:1.5px solid var(--g200);border-radius:12px;padding:10px;font-size:13px;resize:vertical;font-family:inherit}
 .bk-lista{max-height:42vh;overflow-y:auto;margin:8px 0;border:1px solid var(--g100);border-radius:12px}
@@ -347,8 +362,8 @@ body.navegando .fabs{top:calc(env(safe-area-inset-top) + 150px)}
     <div class="sh-acts">
       <button class="btn soft" id="b-traer" type="button">Pedidos de hoy</button>
       <button class="btn primary" id="b-ruta" type="button">Ordenar ruta</button>
-      <button class="btn soft hidden" id="b-editar" type="button">Editar</button>
-      <button class="btn soft" id="b-nav" type="button">Navegar</button>
+      <button class="btn soft hidden" id="b-editar" type="button">Editar paradas</button>
+      <button class="btn soft" id="b-nav" type="button">Iniciar</button>
     </div>
     <div class="sh-body" id="sh-body">
       <div id="lista"></div>
@@ -400,18 +415,27 @@ body.navegando .fabs{top:calc(env(safe-area-inset-top) + 150px)}
 <div class="nav hidden" id="nav">
   <div class="nav-top">
     <div class="nav-ico" id="nav-ico">↑</div>
-    <div class="nav-txt"><div class="nav-dist" id="nav-dist"></div><div class="nav-ins" id="nav-ins"></div><div class="nav-ahora" id="nav-ahora"></div></div>
-    <button class="nav-voz" id="nav-voz" type="button" aria-label="Voz">🔊</button>
+    <div class="nav-txt"><div class="nav-dist" id="nav-dist"></div><div class="nav-calle" id="nav-calle"></div></div>
   </div>
+  <div class="nav-luego hidden" id="nav-luego">Luego <span id="nav-luego-ico">↱</span></div>
   <div class="nav-cam hidden" id="nav-cam"></div>
+  <div class="nav-fabs">
+    <button class="fab" id="nav-brujula" type="button" aria-label="Norte arriba o hacia donde voy">
+      <svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2l4 10h-8z" fill="#D93025"/><path d="M12 22l-4-10h8z" fill="#9AA0A6"/></svg>
+    </button>
+    <button class="fab" id="nav-voz" type="button" aria-label="Voz">🔊</button>
+  </div>
+  <button class="nav-centrar hidden" id="nav-centrar" type="button">➤ Volver a centrar</button>
 </div>
 <div class="navbot hidden" id="navbot">
   <div class="nb-fila">
-    <div class="nb-info"><div class="nb-l1" id="nb-l1"></div><div class="nb-l2" id="nb-l2"></div><div class="nb-eta" id="nb-eta"></div></div>
+    <div class="nb-info"><div class="nb-min" id="nb-min"></div><div class="nb-km" id="nb-km"></div></div>
     <div class="nb-vel" id="nb-vel">–<small>km/h</small></div>
+    <button class="nb-salir" id="nb-salir" type="button">Salir</button>
   </div>
+  <div class="nb-par" id="nb-par"></div>
   <div class="nb-acts">
-    <button class="btn ghost sm" id="nb-salir" type="button">Salir</button>
+    <button class="btn soft sm" id="nb-editar" type="button">Editar paradas</button>
     <button class="btn soft sm" id="nb-saltar" type="button">Dejar de última</button>
     <button class="btn primary sm" id="nb-ok" type="button">✓ Entregado</button>
   </div>
@@ -421,6 +445,7 @@ body.navegando .fabs{top:calc(env(safe-area-inset-top) + 150px)}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
 <script>
 (function () {
 'use strict';
@@ -592,7 +617,8 @@ function decodificar(str) {
 // ---------------- mapa ----------------
 let map, capaZonas, capaRuta, capaParadas, capaCam, mkCand = null, mkGps = null, circGps = null, mkMover = null;
 function iniciarMapa() {
-  map = L.map('map', { zoomControl: false }).setView([6.245, -75.575], 12);
+  // leaflet-rotate: el mapa gira hacia donde va el mensajero al navegar (si no cargó, queda con el norte arriba).
+  map = L.map('map', { zoomControl: false, rotate: true, rotateControl: false, touchRotate: false, shiftKeyRotate: false, bearing: 0 }).setView([6.245, -75.575], 12);
   map.attributionControl.setPosition('topright').setPrefix(false);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
@@ -603,7 +629,10 @@ function iniciarMapa() {
   capaCam = L.layerGroup().addTo(map);
   map.on('zoomend moveend', () => { clearTimeout(pintarCamaras._t); pintarCamaras._t = setTimeout(pintarCamaras, 150); });
   map.on('click', clickMapa);
-  map.on('dragstart', () => { if (S.siguiendo) { S.siguiendo = false; $('#fab-gps').classList.remove('on'); } });
+  map.on('dragstart', () => {
+    if (S.siguiendo) { S.siguiendo = false; $('#fab-gps').classList.remove('on'); }
+    if (NAV.on) $('#nav-centrar').classList.remove('hidden');
+  });
 }
 
 function pintarZonas() {
@@ -674,12 +703,25 @@ function pintarGps() {
     circGps = L.circle(ll, { radius: S.gps.acc, color: '#1A73E8', weight: 1, fillOpacity: 0.1, interactive: false }).addTo(map);
     mkGps = L.marker(ll, { icon: L.divIcon({ className: '', html: '<div class="gps-dot"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }), interactive: false, keyboard: false, zIndexOffset: 1500 }).addTo(map);
   } else { mkGps.setLatLng(ll); circGps.setLatLng(ll).setRadius(S.gps.acc); }
-  if (S.siguiendo) map.panTo(ll);
+  // Al navegar el punto azul se vuelve flecha (como Google) y apunta hacia donde va.
+  const el = mkGps.getElement && mkGps.getElement(), f = el && el.firstChild;
+  if (f) {
+    const quiere = NAV.on ? 'gps-flecha' : 'gps-dot';
+    if (f.className !== quiere) {
+      f.className = quiere;
+      f.innerHTML = NAV.on ? '<svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#fff" opacity=".95"/><path d="M20 6l10 25-10-6-10 6z" fill="#1A73E8" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>' : '';
+      mkGps.setIcon(L.divIcon({ className: '', html: f.outerHTML, iconSize: NAV.on ? [40, 40] : [18, 18], iconAnchor: NAV.on ? [20, 20] : [9, 9] }));
+    }
+    const f2 = mkGps.getElement().firstChild;
+    const giro = NAV.on && NAV.rumbo != null ? NAV.rumbo - (ROTA() ? map.getBearing() : 0) : 0;
+    f2.style.transform = giro ? 'rotate(' + giro + 'deg)' : '';
+  }
+  if (S.siguiendo && !NAV.on) map.panTo(ll);
 }
 function iniciarGps() {
   if (!('geolocation' in navigator) || S._watch != null) return;
   S._watch = navigator.geolocation.watchPosition((pos) => {
-    S.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.min(pos.coords.accuracy || 50, 2000), t: Date.now(), vel: pos.coords.speed };
+    S.gps = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: Math.min(pos.coords.accuracy || 50, 2000), t: Date.now(), vel: pos.coords.speed, rumbo: pos.coords.heading };
     S.gpsError = null; pintarGps();
     if (NAV.on) navTick();
   }, (err) => { S.gpsError = err.code; }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
@@ -777,13 +819,18 @@ function renderResumen() {
     if (otra) sub += ' · <span class="al">' + otra + (esAdmin() ? ' fuera de su zona' : ' no son de tu zona') + '</span>';
     if (sinUb) sub += ' · <span class="al r">' + sinUb + ' sin ubicar</span>';
   }
-  if (S.editRuta) { tit = 'Editando la ruta'; sub = S.editRuta.orden.length + (S.editRuta.orden.length === 1 ? ' parada · ' : ' paradas · ') + S.editRuta.vias.length + ' desvío' + (S.editRuta.vias.length === 1 ? '' : 's') + (S.editRuta.cambio ? ' · <span class="al">sin guardar</span>' : ''); }
+  if (S.editRuta) {
+    const rr = rutaVigente();
+    tit = 'Editar paradas';
+    sub = (rr && !S.editRuta.cambio ? 'Duración del viaje: <b>' + duracion(rr.totalS) + '</b>' : '<span class="al">Cambios sin guardar: toca «Listo» para recalcular</span>') +
+      ' · ' + S.editRuta.orden.length + (S.editRuta.orden.length === 1 ? ' parada' : ' paradas') + (S.editRuta.vias.length ? ' · ' + S.editRuta.vias.length + ' desvío' + (S.editRuta.vias.length === 1 ? '' : 's') : '');
+  }
   $('#sh-tit').textContent = tit;
   $('#sh-sub').innerHTML = sub;
   $('#b-traer').classList.toggle('hidden', esAdmin() && !S.filtro);
   $('#b-traer').textContent = esAdmin() ? 'Sus pedidos de hoy' : 'Pedidos de hoy';
   $('#b-ruta').textContent = S.editRuta ? 'Cancelar' : (rutaVigente() && !rutaDesactualizada() ? 'Reordenar' : 'Ordenar ruta');
-  $('#b-nav').textContent = S.editRuta ? 'Guardar ruta' : 'Navegar';
+  $('#b-nav').textContent = S.editRuta ? 'Listo' : 'Iniciar';
   $('#b-nav').className = 'btn ' + (S.editRuta || rutaVigente() ? 'primary' : 'soft');
   $('#b-ruta').className = 'btn ' + (S.editRuta || rutaVigente() ? 'soft' : 'primary');
   $('#b-editar').classList.toggle('hidden', !rutaVigente() || !!S.editRuta);
@@ -1035,7 +1082,7 @@ function seleccionar(id, desdeLista) {
 function coord(p) { return (+p.lat).toFixed(6) + ',' + (+p.lng).toFixed(6); }
 
 function accionParada(id, acc) {
-  if (acc === 'subir' || acc === 'bajar') return moverEnEdicion(id, acc);
+  if (acc === 'equis') return quitarEnEdicion(id);
   const p = S.paradas.find((x) => x.id === id); if (!p) return;
   if (S.editRuta) return;
   if (acc === 'sel') return seleccionar(id, true);
@@ -1317,7 +1364,7 @@ function arrancar(r) {
   setTimeout(() => { map.invalidateSize(); medirTop(); ajustarVista(); }, 60);
   renderTodo(); guardarLocal();
   if (!esAdmin()) iniciarGps();
-  S.verCamaras = lsGet('verCamaras', true); S.voz = lsGet('voz', true);
+  S.verCamaras = lsGet('verCamaras', true); S.voz = lsGet('voz', true); NAV.norteArriba = lsGet('norteArriba', false);
   cargarCamaras();
 }
 
@@ -1386,8 +1433,9 @@ function pintarCamaras() {
   });
 }
 
-// ---------------- navegar dentro de la app ----------------
-const NAV = { on: false, parada: null, paso: 0, fuera: 0, avisos: {}, cams: {}, camMin: {}, ultRecalc: 0, recalculando: false, wake: null, linea: null, llego: false };
+// ---------------- navegar dentro de la app (como Google Maps) ----------------
+const NAV = { on: false, parada: null, paso: 0, fuera: 0, avisos: {}, cams: {}, camMin: {}, ultRecalc: 0, recalculando: false,
+  wake: null, linea: null, llego: false, rumbo: null, previo: null, norteArriba: false, volverTrasEditar: false };
 const FLECHAS = {
   'turn-right': '↱', 'turn-left': '↰', 'turn-slight-right': '↗', 'turn-slight-left': '↖', 'turn-sharp-right': '↱', 'turn-sharp-left': '↰',
   'keep-right': '↗', 'keep-left': '↖', 'fork-right': '↗', 'fork-left': '↖', 'ramp-right': '↗', 'ramp-left': '↖', 'uturn-right': '↷', 'uturn-left': '↶',
@@ -1398,28 +1446,54 @@ function paradasRuta() {
   const porId = {}; S.paradas.forEach((p) => { porId[p.id] = p; });
   return r.orden.map((id) => porId[id]).filter((p) => p && p.estado === 'pendiente' && p.lat != null);
 }
+// "Gire a la derecha hacia Cra. 52A. Destino a la izquierda" -> "Cra. 52A" (lo grande del letrero, como Google).
+// Primera frase sin cortar en abreviaturas: "hacia Cra. 52A. Destino…" -> "hacia Cra. 52A".
+function primeraFrase(t) {
+  const partes = String(t || '').split(/\.\s+/); let out = partes[0];
+  for (let i = 1; i < partes.length; i++) {
+    if (/\b(cra|kr|cl|cll|av|tv|dg|cq|no|n|diag|transv|carr)$/i.test(out) || /^\d/.test(partes[i])) out += '. ' + partes[i]; else break;
+  }
+  return out;
+}
+function calleDePaso(t) {
+  const s = primeraFrase(t);
+  const m = s.match(/\b(?:hacia|por|en|toma|tome|continúa por|continúe por|incorpórate a|incorpórese a|sal(?:ga)? (?:por|hacia))\s+(.+)$/i);
+  return (m ? m[1] : s).replace(/\s*\/\s*/g, ' / ').trim();
+}
+// La voz lee "Cra." como "cra": se expanden las abreviaturas colombianas.
+function paraVoz(t) {
+  return String(t || '')
+    .replace(/\bCra\.?\s*/gi, 'Carrera ').replace(/\bKr\.?\s*/gi, 'Carrera ').replace(/\bCl\.?\s*(?=\d)/gi, 'Calle ').replace(/\bCll\.?\s*/gi, 'Calle ')
+    .replace(/\bAv\.?\s*/gi, 'Avenida ').replace(/\bTv\.?\s*/gi, 'Transversal ').replace(/\bDg\.?\s*/gi, 'Diagonal ').replace(/\bCq\.?\s*/gi, 'Circular ')
+    .replace(/#/g, ' número ').replace(/\bSur\b/g, 'sur').replace(/\s+/g, ' ').trim();
+}
 function hablar(txt) {
   if (!S.voz || !('speechSynthesis' in window)) return;
-  try { const u = new SpeechSynthesisUtterance(txt); u.lang = 'es-CO'; u.rate = 1.05; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { }
+  try { const u = new SpeechSynthesisUtterance(paraVoz(txt)); u.lang = 'es-CO'; u.rate = 1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { }
 }
 function pedirPantallaEncendida() {
   if (!NAV.on || !navigator.wakeLock) return;
   navigator.wakeLock.request('screen').then((w) => { NAV.wake = w; }).catch(() => { });
 }
+const ROTA = () => !!(map && map.setBearing);
 function iniciarNav() {
   const r = rutaVigente();
   if (!r) { toast('Primero toca «Ordenar ruta».'); return; }
-  if (!paradasRuta().length) { toast('No te quedan paradas pendientes en la ruta.'); return; }
-  if (rutaDesactualizada()) toast('Hay paradas nuevas que no están en la ruta: toca «Reordenar» cuando puedas.');
+  const ps = paradasRuta();
+  if (!ps.length) { toast('No te quedan paradas pendientes en la ruta.'); return; }
+  if (rutaDesactualizada()) toast('Hay paradas nuevas que no están en la ruta: tócalas en «Editar paradas».');
   iniciarGps(); cerrarCard(); salirMover();
   NAV.on = true; NAV.parada = null; NAV.fuera = 0; NAV.cams = {}; NAV.camMin = {}; NAV.llego = false;
   NAV.linea = (r.polilineas || []).filter(Boolean).map(decodificar).reduce((a, b) => a.concat(b), []);
   document.body.classList.add('navegando');
   $('#nav').classList.remove('hidden'); $('#navbot').classList.remove('hidden');
-  $('#nav-voz').textContent = S.voz ? '🔊' : '🔇';
-  S.siguiendo = true; $('#fab-gps').classList.add('on');
-  if (S.gps) map.setView([S.gps.lat, S.gps.lng], 17);
+  $('#nav-voz').innerHTML = S.voz ? '🔊' : '🔇';
+  S.siguiendo = true; $('#nav-centrar').classList.add('hidden');
+  if (S.gps) { map.setView([S.gps.lat, S.gps.lng], 17, { animate: false }); }
   pedirPantallaEncendida();
+  // En iPhone la voz solo arranca si la primera frase sale del toque del botón: por eso se habla aquí.
+  const pasos = (r.pasos || []).filter((p) => p.p === ps[0].id);
+  hablar('Iniciando ruta. ' + (ps.length > 1 ? ps.length + ' paradas. ' : '') + 'Primera: ' + (ps[0].cliente || 'parada') + '. ' + (pasos[0] ? pasos[0].t : ''));
   navTick(true);
 }
 function terminarNav(msg) {
@@ -1429,44 +1503,82 @@ function terminarNav(msg) {
   document.body.classList.remove('navegando');
   $('#nav').classList.add('hidden'); $('#navbot').classList.add('hidden');
   try { speechSynthesis.cancel(); } catch (e) { }
-  renderTodo(); medirTop();
+  if (ROTA()) map.setBearing(0);
+  pintarGps(); renderTodo(); medirTop();
   if (msg) { toast(msg, 'ok'); hablar(msg); }
+}
+// Rumbo: el del GPS cuando va andando; si no lo da (iPhone quieto), se calcula entre dos lecturas.
+function actualizarRumbo(g) {
+  if (g.rumbo != null && isFinite(g.rumbo) && (g.vel == null || g.vel > 1.2)) NAV.rumbo = g.rumbo;
+  else if (NAV.previo && distM(NAV.previo.lat, NAV.previo.lng, g.lat, g.lng) > 8) {
+    const r = Math.PI / 180, y = Math.sin((g.lng - NAV.previo.lng) * r) * Math.cos(g.lat * r);
+    const x = Math.cos(NAV.previo.lat * r) * Math.sin(g.lat * r) - Math.sin(NAV.previo.lat * r) * Math.cos(g.lat * r) * Math.cos((g.lng - NAV.previo.lng) * r);
+    NAV.rumbo = (Math.atan2(y, x) / r + 360) % 360;
+  } else return;
+  NAV.previo = { lat: g.lat, lng: g.lng };
+}
+// El mapa sigue al mensajero con su punto en la parte de abajo (se ve más calle adelante) y girado hacia donde va.
+// (Se centra en un punto ADELANTE del mensajero en vez de usar panBy: con el mapa girado panBy deja las teselas corridas.)
+function seguirEnNav() {
+  if (!S.gps || !S.siguiendo) return;
+  const rumbo = NAV.norteArriba || NAV.rumbo == null ? 0 : NAV.rumbo, z = 17;
+  const mPorPx = 156543.03 * Math.cos(S.gps.lat * Math.PI / 180) / Math.pow(2, z);
+  const adelante = map.getSize().y * 0.18 * mPorPx, r = Math.PI / 180;
+  const dir = (NAV.norteArriba ? 0 : rumbo) * r;
+  const lat = S.gps.lat + (adelante * Math.cos(dir)) / 110540;
+  const lng = S.gps.lng + (adelante * Math.sin(dir)) / (111320 * Math.cos(S.gps.lat * r));
+  if (ROTA()) map.setBearing(NAV.norteArriba ? 0 : rumbo);
+  map.setView([lat, lng], z, { animate: false });
 }
 function navTick(inicio) {
   if (!NAV.on) return;
-  const r = rutaVigente(), par = paradasRuta()[0];
+  const r = rutaVigente(), ps = paradasRuta(), par = ps[0];
   if (!r || !par) { terminarNav('¡Terminaste la ruta!'); return; }
   if (NAV.parada !== par.id) { NAV.parada = par.id; NAV.paso = 0; NAV.avisos = {}; NAV.llego = false; }
-  const quedan = paradasRuta().length;
-  $('#nb-l1').textContent = (par.pedido ? '#' + par.pedido + ' · ' : '') + (par.cliente || 'Parada') + (quedan > 1 ? ' · faltan ' + quedan : ' · última');
-  $('#nb-l2').textContent = (par.direccion || par.direccionGoogle || '') + (par.municipio ? ' · ' + par.municipio : '');
-  if (!S.gps) { $('#nav-dist').textContent = 'Buscando GPS…'; $('#nav-ins').textContent = 'Activa la ubicación del celular.'; $('#nav-ico').textContent = '⌖'; return; }
+  $('#nb-par').textContent = (par.pedido ? '#' + par.pedido + ' · ' : '') + (par.cliente || 'Parada') + ' · ' + (par.direccion || par.direccionGoogle || '');
+  if (!S.gps) {
+    $('#nav-dist').textContent = 'Buscando GPS…'; $('#nav-calle').textContent = 'Activa la ubicación del celular'; $('#nav-ico').textContent = '⌖';
+    $('#nav-luego').classList.add('hidden'); return;
+  }
   const g = S.gps, pasos = (r.pasos || []).filter((p) => p.p === par.id);
-  // Avanza al paso cuyo final ya se alcanzó (se revisa de atrás hacia adelante por si el GPS saltó).
+  actualizarRumbo(g);
+  // Avanza al paso cuyo final ya se alcanzó (de atrás hacia adelante por si el GPS saltó).
   for (let i = pasos.length - 1; i >= NAV.paso; i--) if (distM(g.lat, g.lng, pasos[i].lat, pasos[i].lng) < 30) { NAV.paso = i + 1; break; }
   const dPar = distM(g.lat, g.lng, par.lat, par.lng);
-  let ico = '↑', dist = dPar, ins = 'Llegas a tu parada', ahora = '';
+  let ico = '↑', dist = dPar, calle = par.direccion || 'Tu parada', luego = null, restante = dPar;
   if (dPar < 45) {
-    ico = '📍'; ins = 'Llegaste. Entrega y toca «Entregado».'; dist = 0;
-    if (!NAV.llego) { NAV.llego = true; hablar('Llegaste a ' + (par.cliente || 'tu parada')); }
+    ico = '📍'; calle = 'Llegaste: ' + (par.cliente || 'tu parada'); dist = 0; restante = 0;
+    if (!NAV.llego) { NAV.llego = true; hablar('Llegaste a tu destino. ' + (par.cliente || '')); }
   } else if (pasos.length && NAV.paso < pasos.length - 1) {
-    const cur = pasos[Math.min(NAV.paso, pasos.length - 1)], sig = pasos[NAV.paso + 1];
-    dist = distM(g.lat, g.lng, cur.lat, cur.lng); ins = sig.t; ico = FLECHAS[sig.m] || '↑'; ahora = cur.t;
-    const k = NAV.parada + ':' + (NAV.paso + 1);
-    if (dist < 220 && dist > 60 && !NAV.avisos[k + 'l']) { NAV.avisos[k + 'l'] = 1; hablar('En ' + (Math.round(dist / 50) * 50) + ' metros, ' + sig.t); }
-    if (dist <= 45 && !NAV.avisos[k + 'c']) { NAV.avisos[k + 'c'] = 1; hablar(sig.t); }
-  } else if (inicio && pasos[0]) { ins = pasos[0].t; }
+    const cur = pasos[NAV.paso], sig = pasos[NAV.paso + 1], des = pasos[NAV.paso + 2];
+    dist = distM(g.lat, g.lng, cur.lat, cur.lng); ico = FLECHAS[sig.m] || '↑'; calle = calleDePaso(sig.t);
+    restante = dist + pasos.slice(NAV.paso + 1).reduce((a, p) => a + (p.d || 0), 0);
+    if (des && sig.d < 150) luego = FLECHAS[des.m] || '↑';   // la maniobra que sigue está pegada: "Luego ↱"
+    const k = NAV.parada + ':' + (NAV.paso + 1), yLuego = des && sig.d < 150 ? '. Luego, ' + des.t : '';
+    if (dist < 230 && dist > 70 && !NAV.avisos[k + 'l']) { NAV.avisos[k + 'l'] = 1; hablar('En ' + (Math.round(dist / 50) * 50) + ' metros, ' + sig.t); }
+    if (dist <= 50 && !NAV.avisos[k + 'c']) { NAV.avisos[k + 'c'] = 1; hablar(sig.t + yLuego); }
+  } else if (pasos.length) {
+    ico = '📍'; calle = par.direccion || 'Tu parada';
+    const k = NAV.parada + ':fin';
+    if (dist < 200 && !NAV.avisos[k]) { NAV.avisos[k] = 1; hablar('Tu destino está a ' + (Math.round(dist / 50) * 50) + ' metros'); }
+  }
   $('#nav-ico').textContent = ico;
-  $('#nav-dist').textContent = dist ? km(dist) : 'Aquí';
-  $('#nav-ins').textContent = ins;
-  $('#nav-ahora').textContent = ahora ? 'Ahora: ' + ahora : '';
+  $('#nav-dist').textContent = dist ? km(dist) : '';
+  $('#nav-calle').textContent = calle;
+  $('#nav-luego').classList.toggle('hidden', !luego);
+  if (luego) $('#nav-luego-ico').textContent = luego;
   $('#nb-ok').classList.toggle('pulso', NAV.llego);
-  // Velocidad (del GPS) y hora de llegada a esta parada.
+  // Abajo, como Google: minutos que faltan a ESTA parada, km y hora de llegada.
+  const tramo = (r.tramos || []).find((t) => t.id === par.id) || {};
+  const vMed = tramo.distM && tramo.durS ? tramo.distM / tramo.durS : 7;
+  const segs = restante / vMed;
+  $('#nb-min').textContent = restante ? Math.max(1, Math.round(segs / 60)) + ' min' : 'Llegaste';
+  $('#nb-km').textContent = (restante ? km(restante) + ' · ' + hora(Date.now() + segs * 1000) : '') + (ps.length > 1 ? ' · faltan ' + ps.length + ' paradas' : ' · última parada');
   const vel = g.vel != null && g.vel >= 0 ? Math.round(g.vel * 3.6) : null;
   $('#nb-vel').innerHTML = (vel == null ? '–' : vel) + '<small>km/h</small>';
-  const etas = horasEstimadas(); $('#nb-eta').textContent = etas[par.id] ? 'Llegada ~' + hora(etas[par.id]) : '';
   revisarCamaras(g, vel);
   revisarDesvio(g);
+  seguirEnNav();
 }
 function revisarCamaras(g, vel) {
   const caja = $('#nav-cam'); let cerca = null;
@@ -1495,7 +1607,7 @@ function revisarDesvio(g) {
   if (!NAV.linea || NAV.linea.length < 2 || NAV.recalculando || NAV.llego) return;
   const d = distLinea(g.lat, g.lng, NAV.linea);
   NAV.fuera = d > 60 && g.acc < 60 ? NAV.fuera + 1 : 0;
-  if (NAV.fuera >= 3 && Date.now() - NAV.ultRecalc > 45000) recalcularEnCamino('Recalculando la ruta');
+  if (NAV.fuera >= 3 && Date.now() - NAV.ultRecalc > 45000) recalcularEnCamino('Recalculando');
 }
 function recalcularEnCamino(msg, orden) {
   const r = rutaVigente(); if (!r || !S.gps) return Promise.resolve();
@@ -1516,33 +1628,100 @@ function navEntregado() {
   accionParada(par.id, 'entregada');
   NAV.parada = null; setTimeout(() => navTick(), 50);
   const sig = paradasRuta()[0];
-  if (sig) hablar('Siguiente: ' + (sig.cliente || 'parada') + (sig.direccion ? ', ' + sig.direccion : ''));
+  if (sig) hablar('Entregado. Siguiente: ' + (sig.cliente || 'parada') + (sig.direccion ? ', ' + sig.direccion : ''));
 }
 function navSaltar() {
   const ps = paradasRuta(); if (ps.length < 2) { toast('Es la última parada.'); return; }
-  const orden = ps.slice(1).map((p) => p.id).concat([ps[0].id]);
-  recalcularEnCamino('La dejo de última', orden);
+  recalcularEnCamino('La dejo de última', ps.slice(1).map((p) => p.id).concat([ps[0].id]));
+}
+function navEditar() {
+  NAV.volverTrasEditar = true;
+  terminarNav(); empezarEdicion();
 }
 
-// ---------------- editar la ruta: orden a mano y puntos por donde pasar ----------------
+// ---------------- editar paradas (como Google: ≡ para arrastrar, ✕ para quitar, agregar) ----------------
 function empezarEdicion() {
   const r = rutaVigente();
   if (!r) { toast('Primero toca «Ordenar ruta».'); return; }
   const orden = paradasRuta().map((p) => p.id);
-  if (!orden.length) { toast('No hay paradas pendientes en la ruta.'); return; }
+  // Las pendientes que no estaban en la ruta entran al final para que el mensajero las acomode.
+  paradasVisibles().forEach((p) => { if (p.estado === 'pendiente' && p.lat != null && orden.indexOf(p.id) < 0) orden.push(p.id); });
+  if (!orden.length) { toast('No hay paradas pendientes.'); return; }
   cerrarCard(); salirMover(); S.sel = null;
-  S.editRuta = { orden: orden, vias: (r.vias || []).filter((v) => orden.indexOf(v.antesDe) >= 0 || v.antesDe === 'fin').map((v) => Object.assign({}, v)), cambio: false };
+  S.editRuta = { orden: orden, quitar: [], vias: (r.vias || []).filter((v) => orden.indexOf(v.antesDe) >= 0 || v.antesDe === 'fin').map((v) => Object.assign({}, v)), cambio: false };
   $('#sheet').classList.add('abierta');
   renderTodo();
-  toast('Mueve las paradas con ↑ ↓ o toca la línea azul para desviar la ruta.');
 }
-function cancelarEdicion() { S.editRuta = null; renderTodo(); }
-function moverEnEdicion(id, acc) {
-  const o = S.editRuta.orden, i = o.indexOf(id), j = acc === 'subir' ? i - 1 : i + 1;
-  if (i < 0 || j < 0 || j >= o.length) return;
-  o[i] = o[j]; o[j] = id; S.editRuta.cambio = true;
+function cancelarEdicion() {
+  const volver = NAV.volverTrasEditar; NAV.volverTrasEditar = false;
+  S.editRuta = null; renderTodo();
+  if (volver) iniciarNav();
+}
+function quitarEnEdicion(id) {
+  const e = S.editRuta, i = e.orden.indexOf(id); if (i < 0) return;
+  e.orden.splice(i, 1); e.quitar.push(id); e.cambio = true;
+  e.vias = e.vias.filter((v) => v.antesDe !== id);
+  renderTodo();
+}
+function moverEnEdicion(id, nuevoIdx) {
+  const o = S.editRuta.orden, i = o.indexOf(id);
+  if (i < 0 || nuevoIdx === i) return;
+  o.splice(i, 1); o.splice(Math.max(0, Math.min(o.length, nuevoIdx)), 0, id);
+  S.editRuta.cambio = true;
   S.editRuta.vias.forEach((v) => { v.antesDe = antesDeVia(v.lat, v.lng); });
   renderTodo();
+}
+// Arrastrar con el dedo desde ≡: la fila sigue al dedo y al soltar queda donde cayó.
+function empezarArrastre(ev, fila) {
+  ev.preventDefault();
+  const cont = $('#lista'), filas = $$('#lista .st[data-id]'), idx0 = filas.indexOf(fila), y0 = ev.clientY;
+  const centros = filas.map((f) => { const b = f.getBoundingClientRect(); return b.top + b.height / 2; });
+  fila.classList.add('arrastrando');
+  let destino = idx0;
+  const mover = (e) => {
+    const dy = e.clientY - y0; fila.style.transform = 'translateY(' + dy + 'px)';
+    const y = centros[idx0] + dy;
+    destino = centros.filter((c, i) => i !== idx0 && c < y).length;
+    const b = cont.parentElement.getBoundingClientRect();   // auto-desplaza la lista cerca de los bordes
+    if (e.clientY > b.bottom - 40) cont.parentElement.scrollTop += 12; else if (e.clientY < b.top + 40) cont.parentElement.scrollTop -= 12;
+  };
+  const soltar = () => {
+    document.removeEventListener('pointermove', mover); document.removeEventListener('pointerup', soltar); document.removeEventListener('pointercancel', soltar);
+    fila.classList.remove('arrastrando'); fila.style.transform = '';
+    moverEnEdicion(fila.dataset.id, destino);
+  };
+  document.addEventListener('pointermove', mover); document.addEventListener('pointerup', soltar); document.addEventListener('pointercancel', soltar);
+}
+// "Agregar parada" dentro del editor: número de pedido o dirección, igual que el buscador de arriba.
+function agregarEnEdicion(ev) {
+  if (ev) ev.preventDefault();
+  const inp = $('#ed-q'), texto = inp.value.trim(); if (!texto) { inp.focus(); return; }
+  ocupado(true, 'Buscando «' + texto + '»…');
+  api('buscar', { texto: texto, municipio: S.municipio }).then((r) => {
+    if (!r.ok) {
+      ocupado(false);
+      toast(r.code === 'NO_UBICADA' ? 'No la ubiqué: sal del editor y búscala arriba para poner el pin a mano.' : r.error, 'err');
+      return;
+    }
+    const c = r.candidato, p = { pedido: c.pedido, cliente: c.cliente, direccion: c.direccion, municipio: c.municipio, lat: c.lat, lng: c.lng,
+      precision: c.precision, fuente: c.fuente, direccionGoogle: c.direccionGoogle };
+    if (esAdmin()) p.mensajero = S.filtro;
+    return api('agregarParadas', { paradas: [p] }, nuevoRid()).then((x) => {
+      ocupado(false);
+      if (!x.ok) { toast(x.error, 'err'); return; }
+      const antes = {}; S.paradas.forEach((q) => { antes[q.id] = 1; });
+      aplicarParadas(x.paradas);
+      const nueva = S.paradas.find((q) => !antes[q.id] && q.estado === 'pendiente') ||
+        S.paradas.find((q) => q.pedido && q.pedido === c.pedido && q.estado === 'pendiente');
+      inp.value = '';
+      if (!nueva || !S.editRuta || S.editRuta.orden.indexOf(nueva.id) >= 0) { renderTodo(); toast('Esa parada ya está en tu ruta.'); return; }
+      S.editRuta.orden.push(nueva.id); S.editRuta.cambio = true;
+      S.editRuta.quitar = S.editRuta.quitar.filter((x) => x !== nueva.id);   // la había quitado con ✕ y la vuelve a poner
+      renderTodo();
+      const otra = r.zona && r.zona.veredicto !== 'propia' && !esAdmin();
+      toast('Parada agregada al final' + (otra ? ' (no es de tu zona)' : '') + '. Arrástrala con ≡ si va antes.', otra ? '' : 'ok');
+    });
+  }).catch((e) => { ocupado(false); toast(e.message, 'err'); });
 }
 // ¿Entre qué paradas cae un punto? Se mira el tramo recto más cercano: origen → paradas en orden → (bodega).
 function antesDeVia(lat, lng) {
@@ -1563,33 +1742,49 @@ function agregarVia(latlng) {
   S.editRuta.cambio = true; dibujarRuta(); renderResumen();
   toast('Punto agregado: arrástralo a la calle por donde quieres pasar. Tócalo para quitarlo.');
 }
-function aplicarEdicion() {
+async function aplicarEdicion() {
   const e = S.editRuta, r = rutaVigente(); if (!e || !r) return;
-  const args = { ordenManual: e.orden, vias: e.vias.map((v) => ({ lat: +v.lat.toFixed(6), lng: +v.lng.toFixed(6), antesDe: v.antesDe })), volver: !!r.fin };
-  const gpsOk = S.gps && Date.now() - S.gps.t < 10 * 60000;
-  if (r.origen.tipo === 'gps' && gpsOk) args.origen = { lat: S.gps.lat, lng: S.gps.lng };
-  else if (r.origen.tipo === 'gps') args.origen = { lat: r.origen.lat, lng: r.origen.lng };
-  if (esAdmin()) args.mensajero = S.filtro;
-  ocupado(true, 'Recalculando con tus cambios…');
-  api('optimizarRuta', args, nuevoRid()).then((x) => {
+  if (!e.orden.length && !e.quitar.length) { cancelarEdicion(); return; }
+  ocupado(true, 'Guardando tus cambios…');
+  try {
+    for (const id of e.quitar) {
+      const q = await api('actualizarParada', { id: id, estado: 'quitada' }, nuevoRid());
+      if (!q.ok) throw new Error(q.error);
+    }
+    if (!e.orden.length) { ocupado(false); S.editRuta = null; S.ruta = null; await refrescar(true); toast('Quitaste todas las paradas.'); return; }
+    const args = { ordenManual: e.orden, vias: e.vias.map((v) => ({ lat: +v.lat.toFixed(6), lng: +v.lng.toFixed(6), antesDe: v.antesDe })), volver: !!r.fin };
+    const gpsOk = S.gps && Date.now() - S.gps.t < 10 * 60000;
+    if (gpsOk && !esAdmin()) args.origen = { lat: S.gps.lat, lng: S.gps.lng };
+    else if (r.origen.tipo === 'gps') args.origen = { lat: r.origen.lat, lng: r.origen.lng };
+    if (esAdmin()) args.mensajero = S.filtro;
+    ocupado(true, 'Recalculando la ruta…');
+    const x = await api('optimizarRuta', args, nuevoRid());
     ocupado(false);
     if (!x.ok) { toast(x.error, 'err'); return; }
     S.editRuta = null; S.ruta = x.ruta; aplicarParadas(x.paradas);
-    toast(x.ruta.aviso || ('Ruta guardada · ' + km(x.ruta.totalM) + ' · ' + duracion(x.ruta.totalS)), x.ruta.aviso ? 'err' : 'ok');
-  }).catch((err) => { ocupado(false); toast(err.message, 'err'); });
+    toast(x.ruta.aviso || ('Ruta lista · ' + duracion(x.ruta.totalS) + ' · ' + km(x.ruta.totalM)), x.ruta.aviso ? 'err' : 'ok');
+    if (NAV.volverTrasEditar) { NAV.volverTrasEditar = false; iniciarNav(); }
+  } catch (err) { ocupado(false); toast(err.message, 'err'); }
 }
 function renderListaEdicion() {
   const porId = {}; S.paradas.forEach((p) => { porId[p.id] = p; });
-  const o = S.editRuta.orden;
-  $('#lista').innerHTML = '<div class="edit-hint">Sube o baja las paradas con <b>↑ ↓</b>. Para pasar por otra calle, <b>toca la línea azul</b> y arrastra el punto blanco. Toca un punto blanco para quitarlo. Al final dale <b>Guardar ruta</b>.</div>' +
-    o.map((id, i) => {
-      const p = porId[id]; if (!p) return '';
-      return '<div class="st" data-id="' + esc(id) + '"><div class="st-main"><div class="st-num">' + (i + 1) + '</div>' +
-        '<div class="st-txt"><div class="st-l1">' + [p.pedido ? '#' + esc(p.pedido) : '', esc(p.cliente)].filter(Boolean).join(' · ') + '</div>' +
-        '<div class="st-l2">' + esc(p.direccion || p.direccionGoogle || '') + '</div></div>' +
-        '<div class="st-mv"><button type="button" data-acc="subir"' + (i === 0 ? ' disabled' : '') + ' aria-label="Subir">↑</button>' +
-        '<button type="button" data-acc="bajar"' + (i === o.length - 1 ? ' disabled' : '') + ' aria-label="Bajar">↓</button></div></div></div>';
-    }).join('');
+  const o = S.editRuta.orden, r = rutaVigente();
+  const letra = (i) => i < 26 ? String.fromCharCode(65 + i) : String(i + 1);
+  let html = '<div class="ed-fila ed-origen"><span class="ed-pt yo"></span><div class="ed-caja">' + (r && r.origen.tipo === 'bodega' ? 'Bodega' : 'Tu ubicación') + '</div></div>';
+  o.forEach((id, i) => {
+    const p = porId[id]; if (!p) return;
+    html += '<div class="st ed-fila" data-id="' + esc(id) + '"><span class="ed-pt">' + letra(i) + '</span>' +
+      '<div class="ed-caja"><div class="ed-nom">' + [p.pedido ? '#' + esc(p.pedido) : '', esc(p.cliente)].filter(Boolean).join(' · ') + '</div>' +
+      '<div class="ed-dir">' + esc(p.direccion || p.direccionGoogle || '') + '</div></div>' +
+      '<button class="ed-drag" type="button" data-drag aria-label="Arrastrar">≡</button>' +
+      '<button class="ed-x" type="button" data-acc="equis" aria-label="Quitar">✕</button></div>';
+  });
+  html += '<form class="ed-fila ed-add" id="ed-add" autocomplete="off"><span class="ed-pt">' + letra(o.length) + '</span>' +
+    '<input id="ed-q" class="ed-caja ed-input" type="search" enterkeyhint="done" placeholder="Agregar parada: n° de pedido o dirección">' +
+    '<button class="btn soft sm" type="submit">Agregar</button></form>';
+  html += '<div class="edit-hint">Arrastra <b>≡</b> para cambiar el orden y <b>✕</b> para quitar. Para pasar por otra calle, <b>toca la línea azul</b> y mueve el punto blanco. Al terminar toca <b>Listo</b>.</div>';
+  $('#lista').innerHTML = html;
+  $('#ed-add').addEventListener('submit', agregarEnEdicion);
 }
 function dibujarEdicion(lineas) {
   const r = rutaVigente(), e = S.editRuta, porId = {}; S.paradas.forEach((p) => { porId[p.id] = p; });
@@ -1749,10 +1944,23 @@ function conectarEventos() {
     S.verCamaras = !S.verCamaras; lsSet('verCamaras', S.verCamaras); pintarCamaras();
     toast(S.verCamaras ? (map.getZoom() >= 13 ? 'Cámaras de fotomultas visibles' : 'Acércate en el mapa para ver las cámaras') : 'Cámaras ocultas (en Navegar igual te avisa)');
   });
-  $('#nav-voz').addEventListener('click', () => { S.voz = !S.voz; lsSet('voz', S.voz); $('#nav-voz').textContent = S.voz ? '🔊' : '🔇'; if (!S.voz) try { speechSynthesis.cancel(); } catch (e) { } });
+  $('#nav-voz').addEventListener('click', () => {
+    S.voz = !S.voz; lsSet('voz', S.voz); $('#nav-voz').textContent = S.voz ? '🔊' : '🔇';
+    if (!S.voz) { try { speechSynthesis.cancel(); } catch (e) { } } else hablar('Voz activada');
+  });
   $('#nb-ok').addEventListener('click', navEntregado);
   $('#nb-saltar').addEventListener('click', navSaltar);
   $('#nb-salir').addEventListener('click', () => terminarNav());
+  $('#nb-editar').addEventListener('click', navEditar);
+  $('#nav-centrar').addEventListener('click', () => { S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); if (S.gps) map.setZoom(17, { animate: false }); seguirEnNav(); });
+  $('#nav-brujula').addEventListener('click', () => {
+    NAV.norteArriba = !NAV.norteArriba; lsSet('norteArriba', NAV.norteArriba);
+    toast(NAV.norteArriba ? 'Norte arriba' : 'El mapa gira hacia donde vas'); seguirEnNav(); pintarGps();
+  });
+  $('#lista').addEventListener('pointerdown', (e) => {
+    const h = e.target.closest('[data-drag]'); if (!h || !S.editRuta) return;
+    empezarArrastre(e, h.closest('.st'));
+  });
   $('#r-go').addEventListener('click', calcularRuta);
 
   $('#fab-gps').addEventListener('click', () => {
