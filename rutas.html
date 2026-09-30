@@ -556,7 +556,8 @@ function intentar(payload, n) {
   if (API_URL.indexOf('PEGA_AQUI') === 0) return Promise.reject(new Error('Falta pegar la URL del Apps Script en API_URL (rutas.html).'));
   const SIN_PERMISO = 'El Apps Script pide iniciar sesión: en Implementar > Gestionar implementaciones pon «Quién tiene acceso: Cualquier persona».';
   // Tiempo límite: si Apps Script no contesta en 40 s se corta y se reintenta (antes podía quedarse «Abriendo…» para siempre).
-  const ctl = window.AbortController ? new AbortController() : null, reloj = ctl && setTimeout(() => ctl.abort(), 40000);
+  const lento = /^(optimizarRuta|cargarPedidos|importarHoy)$/.test(payload.fn);   // Google + hoja: pueden tardar más
+  const ctl = window.AbortController ? new AbortController() : null, reloj = ctl && setTimeout(() => ctl.abort(), lento ? 75000 : 40000);
   return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined })
     .then((r) => {
       clearTimeout(reloj);
@@ -1722,9 +1723,13 @@ function revisarCamaras(g, vel) {
 // Si se sale de la línea azul un rato, recalcula desde donde está, en el mismo orden.
 function revisarDesvio(g) {
   if (!NAV.linea || NAV.linea.length < 2 || NAV.recalculando || NAV.llego) return;
+  // Solo si va ANDANDO: quieto (en la bodega, en un semáforo) el GPS "salta" y antes pedía una ruta nueva cada 45 s
+  // desde cada celular, bloqueando la hoja para todos.
+  const andando = g.vel != null ? g.vel > 2 : (NAV.ultPos ? distM(NAV.ultPos.lat, NAV.ultPos.lng, g.lat, g.lng) > 20 : false);
+  NAV.ultPos = { lat: g.lat, lng: g.lng };
   const d = distLinea(g.lat, g.lng, NAV.linea);
-  NAV.fuera = d > 60 && g.acc < 60 ? NAV.fuera + 1 : 0;
-  if (NAV.fuera >= 3 && Date.now() - NAV.ultRecalc > 45000) recalcularEnCamino('Recalculando');
+  NAV.fuera = andando && d > 60 && g.acc < 50 ? NAV.fuera + 1 : (d <= 60 ? 0 : NAV.fuera);
+  if (NAV.fuera >= 4 && Date.now() - NAV.ultRecalc > 60000) recalcularEnCamino('Recalculando');
 }
 function recalcularEnCamino(msg, orden) {
   const r = rutaVigente(); if (!r || !S.gps) return Promise.resolve();
@@ -1944,9 +1949,9 @@ function lineaUbicacionBukapp(l) {
   return { municipio: muni, direccion: dirs[dirs.length - 1] };
 }
 function parsearBukapp(texto) {
-  // "Pedido #66061" (Despachos) o "#67219" al comienzo del renglón (Entregas). Se piden 4+ dígitos y comienzo de
-  // renglón para no confundirlo con el "#" de una dirección ("CRA 52A # 12-30").
-  const partes = String(texto || '').split(/(?:^|\n)[ \t]*(?:Pedido\s*)?#\s*(\d{4,9})\b/i), out = [], vistos = {};
+  // "Pedido #66061" (Despachos) EN CUALQUIER PARTE (al copiar puede quedar la casilla ☐ u otra cosa antes), o
+  // "#67219" suelto al comienzo del renglón (Entregas): así no se confunde con el "#" de una dirección ("CRA 52A # 12-30").
+  const partes = String(texto || '').split(/(?:Pedido\s*#\s*|(?:^|\n)[^\S\n]*#\s*(?=\d{4}))(\d{3,9})\b/i), out = [], vistos = {};
   for (let i = 1; i < partes.length; i += 2) {
     const num = partes[i], lineas = String(partes[i + 1] || '').split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
     let cliente = '', municipio = '', direccion = '', mensajero = '';
