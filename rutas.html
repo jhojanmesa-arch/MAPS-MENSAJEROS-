@@ -261,7 +261,9 @@ body.navegando .top,body.navegando .sheet,body.navegando #card,body.navegando .f
    CUADRADO grande centrado en el mensajero y encima se le aplica el giro (rumbo) y, en 3D, la inclinación.
    El mensajero queda al 72 % de la altura de la pantalla, como en Google. --lado y --giro los pone aplicarVista(). */
 body.navegando.girando #map{inset:auto;width:var(--lado);height:var(--lado);left:calc(50vw - var(--lado) / 2);top:calc(72vh - var(--lado) / 2);
-  transform-origin:50% 50%;transform:var(--giro);transition:transform .6s linear}
+  transform-origin:50% 50%;transform:var(--giro);transition:transform .6s linear;touch-action:none!important}
+/* (Sin touch-action:none el navegador del celular se queda con el gesto y cancela el arrastre: Leaflet lo ponía
+   solo mientras su propio arrastre estaba activo, y navegando está apagado porque el mapa va girado.) */
 #nav-3d{font:800 15px var(--font)}
 .cam-ico{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .via{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid #2563EB;box-shadow:0 1px 5px rgba(0,0,0,.4)}
@@ -553,8 +555,11 @@ function intentar(payload, n) {
   if (EN_GAS) return intentarGas(payload, n);
   if (API_URL.indexOf('PEGA_AQUI') === 0) return Promise.reject(new Error('Falta pegar la URL del Apps Script en API_URL (rutas.html).'));
   const SIN_PERMISO = 'El Apps Script pide iniciar sesión: en Implementar > Gestionar implementaciones pon «Quién tiene acceso: Cualquier persona».';
-  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) })
+  // Tiempo límite: si Apps Script no contesta en 40 s se corta y se reintenta (antes podía quedarse «Abriendo…» para siempre).
+  const ctl = window.AbortController ? new AbortController() : null, reloj = ctl && setTimeout(() => ctl.abort(), 40000);
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), signal: ctl ? ctl.signal : undefined })
     .then((r) => {
+      clearTimeout(reloj);
       if (r.status === 401 || r.status === 403) { const e = new Error(SIN_PERMISO); e.sinReintento = true; throw e; }
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.text();
@@ -564,8 +569,11 @@ function intentar(payload, n) {
       catch (e) { const x = new Error(SIN_PERMISO); x.sinReintento = true; throw x; }   // llegó la página de login de Google
     })
     .catch((err) => {
+      clearTimeout(reloj);
+      if (err && err.name === 'AbortError' && n > 2) n = 2;   // si se demoró, un solo reintento (no 3 × 40 s)
       if (n > 1 && !err.sinReintento) return espera(900).then(() => intentar(payload, n - 1));
       // Si falta el permiso, Google responde sin CORS y el navegador lo reporta igual que "sin internet".
+      if (err && err.name === 'AbortError') throw new Error('El servidor está tardando demasiado. Revisa la señal e inténtalo otra vez.');
       if (err instanceof TypeError) throw new Error('No pude conectar con el servidor. Revisa el internet; si sí hay internet, el Apps Script no está publicado para «Cualquier persona».');
       throw err;
     });
@@ -875,7 +883,7 @@ function renderLista() {
     const numCls = p.estado === 'entregada' ? 'done' : (p.lat == null ? 'nada' : (clase === 'lim' ? '' : clase));
     const estilo = esAdmin() && p.estado !== 'entregada' ? ' style="background:' + colorMensajero(p.mensajero) + '"' : '';
     const l1 = [p.pedido ? '#' + esc(p.pedido) : '', esc(p.cliente), esAdmin() && !S.filtro ? esc(nombreDe(p.mensajero)) : ''].filter(Boolean).join(' · ') || 'Sin número de pedido';
-    let chips = textoVeredicto(p);
+    let chips = (p.guardando ? '<span class="ch lim">Guardando…</span>' : '') + textoVeredicto(p);
     if (p.lat != null && p.estado === 'pendiente' && (p.precision === 'barrio' || p.precision === 'aproximada')) chips += '<span class="ch lim">' + (p.precision === 'barrio' ? 'Solo el barrio' : 'Ubicación aproximada') + '</span>';
     if (etas[p.id]) chips += '<span class="ch eta">~' + hora(etas[p.id]) + '</span>';
     html += '<div class="st' + (S.sel === p.id ? ' sel' : '') + (p.estado === 'entregada' ? ' done' : '') + '" data-id="' + esc(p.id) + '">' +
@@ -1062,13 +1070,21 @@ function agregarCand(boton) {
     lat: c.lat, lng: c.lng, precision: c.precision, corregida: !!c.corregida, fuente: c.fuente || 'manual', direccionGoogle: c.direccionGoogle || ''
   };
   if (esAdmin()) p.mensajero = $('#c-mens').value;
-  boton.disabled = true; boton.textContent = 'Guardando…';
-  api('agregarParadas', { paradas: [p] }, nuevoRid()).then((r) => {
-    if (!r.ok) { boton.disabled = false; boton.textContent = 'Reintentar'; toast(r.error, 'err'); return; }
+  // Al instante: la parada aparece ya en la ruta (marcada «guardando») y se guarda por detrás.
+  // Si el servidor falla, se quita y se avisa para volver a buscarla.
+  const rid = nuevoRid(), tmp = 'tmp_' + rid;
+  const z = p.lat != null ? clasificar(p.lat, p.lng, esAdmin() ? [] : zonasPropias()) : { zona: '', veredicto: 'sin_ubicacion' };
+  const yaEsta = p.pedido && S.paradas.some((x) => x.pedido === p.pedido && x.estado === 'pendiente');
+  if (!yaEsta) {
+    S.paradas = S.paradas.concat([Object.assign({}, p, { id: tmp, mensajero: esAdmin() ? p.mensajero : S.usuario.id, estado: 'pendiente',
+      zona: z.zona, veredicto: z.veredicto, creado: new Date().toISOString(), guardando: true })]);
+  }
+  cerrarCard(); $('#q').value = ''; renderTodo();
+  toast(esAdmin() ? 'Asignada a ' + nombreDe(p.mensajero) : 'Agregada a tu ruta', 'ok');
+  api('agregarParadas', { paradas: [p] }, rid).then((r) => {
+    if (!r.ok) { S.paradas = S.paradas.filter((x) => x.id !== tmp); renderTodo(); toast('No se guardó: ' + r.error, 'err'); return; }
     aplicarParadas(r.paradas);
-    cerrarCard(); $('#q').value = '';
-    toast(esAdmin() ? 'Asignada a ' + nombreDe(p.mensajero) : 'Agregada a tu ruta', 'ok');
-  }).catch((e) => { boton.disabled = false; boton.textContent = 'Reintentar'; toast(e.message, 'err'); });
+  }).catch((e) => { S.paradas = S.paradas.filter((x) => x.id !== tmp); renderTodo(); toast('No se guardó (' + e.message + '). Búscala otra vez.', 'err'); });
 }
 
 // ---------------- paradas ----------------
@@ -1103,6 +1119,7 @@ function coord(p) { return (+p.lat).toFixed(6) + ',' + (+p.lng).toFixed(6); }
 
 function accionParada(id, acc) {
   if (acc === 'equis') return quitarEnEdicion(id);
+  if (String(id).indexOf('tmp_') === 0) { toast('Espera un segundo: se está guardando.'); return; }
   const p = S.paradas.find((x) => x.id === id); if (!p) return;
   if (S.editRuta) return;
   if (acc === 'sel') return seleccionar(id, true);
@@ -2072,6 +2089,7 @@ function conectarEventos() {
   const dedos = new Map(); let pinza = null, movio = false;
   $('#map').addEventListener('pointerdown', (e) => {
     if (!NAV.on || !document.body.classList.contains('girando')) return;
+    try { $('#map').setPointerCapture(e.pointerId); } catch (x) { }   // que el dedo siga siendo nuestro aunque salga del mapa
     dedos.set(e.pointerId, { x: e.clientX, y: e.clientY }); movio = false;
     if (dedos.size === 2) {
       const [a, b] = [...dedos.values()];
@@ -2147,7 +2165,8 @@ function inicio() {
   const cache = lsGet('cache', null);
   const cacheHoy = cache && cache.usuario && cache.hoy === hoyLocal() ? cache : null;
   ocupado(true, 'Abriendo…');
-  api('estado').then((r) => {
+  const lento = setTimeout(() => ocupado(true, 'El servidor está lento, sigo intentando…'), 8000);
+  api('estado').finally(() => clearTimeout(lento)).then((r) => {
     ocupado(false);
     if (!r.ok) { salir(false); return; }
     if (cacheHoy && cacheHoy.hoy === r.hoy && cacheHoy.usuario.id === r.usuario.id && !r.ruta && cacheHoy.ruta) r.ruta = cacheHoy.ruta;
