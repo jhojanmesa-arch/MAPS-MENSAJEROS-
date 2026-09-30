@@ -197,6 +197,7 @@ body.con-card .sheet,body.editando .sheet{display:none}
 .ch.lim{background:var(--amber-light);color:var(--amber)}
 .ch.fuera{background:var(--red-light);color:var(--red)}
 .ch.eta{background:var(--blue-light);color:var(--blue)}
+.st-x{border:none;background:none;color:var(--g400);font-size:17px;width:34px;height:40px;flex-shrink:0;margin-left:-4px}
 .st-go{border:none;background:var(--g100);border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;flex-shrink:0}
 .st-acts{display:none;flex-wrap:wrap;gap:6px;padding:0 10px 10px 51px}
 .st.sel .st-acts{display:flex}
@@ -419,6 +420,14 @@ body.navegando.girando #map{inset:auto;width:var(--lado);height:var(--lado);left
   </div>
 </div>
 
+<div class="velo hidden" id="m-conf">
+  <div class="caja">
+    <div class="caja-tit" id="cf-tit"></div>
+    <div class="caja-nota" id="cf-txt"></div>
+    <div class="caja-acts"><button class="btn soft" data-cerrar type="button">Cancelar</button><button class="btn warn" id="cf-si" type="button">Aceptar</button></div>
+  </div>
+</div>
+
 <div class="nav hidden" id="nav">
   <div class="nav-top">
     <div class="nav-ico" id="nav-ico">↑</div>
@@ -635,7 +644,7 @@ function iniciarMapa() {
   capaParadas = L.layerGroup().addTo(map);
   capaCam = L.layerGroup().addTo(map);
   if (/^(127\.0\.0\.1|localhost)$/.test(location.hostname)) window.__mapa = map;   // solo para el banco de pruebas
-  map.on('zoomend moveend', () => { clearTimeout(pintarCamaras._t); pintarCamaras._t = setTimeout(pintarCamaras, 150); });
+  map.on('zoomend moveend', () => { clearTimeout(pintarCamaras._t); pintarCamaras._t = setTimeout(pintarCamaras, NAV.on ? 600 : 150); });
   map.on('click', clickMapa);
   map.on('dragstart', () => {
     if (S.siguiendo) { S.siguiendo = false; $('#fab-gps').classList.remove('on'); }
@@ -873,7 +882,8 @@ function renderLista() {
       '<div class="st-main" data-acc="sel"><div class="st-num ' + numCls + '"' + estilo + '>' + num + '</div>' +
       '<div class="st-txt"><div class="st-l1">' + l1 + '</div><div class="st-l2">' + esc(p.direccion || p.direccionGoogle || 'Sin dirección') +
       (p.municipio ? ' · ' + esc(p.municipio) : '') + '</div>' + (chips ? '<div class="st-chips">' + chips + '</div>' : '') + '</div>' +
-      (p.lat != null && p.estado === 'pendiente' ? '<button class="st-go" data-acc="ir" type="button">Ir</button>' : '') + '</div>' +
+      (p.lat != null && p.estado === 'pendiente' ? '<button class="st-go" data-acc="ir" type="button">Ir</button>' : '') +
+      '<button class="st-x" data-acc="quitar" type="button" aria-label="Quitar parada">✕</button></div>' +
       '<div class="st-acts">' +
       (p.lat != null ? '<button class="btn soft" data-acc="ir" type="button">Google Maps</button><button class="btn soft" data-acc="waze" type="button">Waze</button>' : '') +
       (p.estado === 'pendiente' ? '<button class="btn primary" data-acc="entregada" type="button">✓ Entregada</button>' : '<button class="btn soft" data-acc="pendiente" type="button">Volver a pendiente</button>') +
@@ -1099,16 +1109,31 @@ function accionParada(id, acc) {
   if (acc === 'ir') return abrirUrl('https://www.google.com/maps/dir/?api=1&destination=' + coord(p) + '&travelmode=driving');
   if (acc === 'waze') return abrirUrl('https://waze.com/ul?ll=' + coord(p) + '&navigate=yes');
   if (acc === 'mover') return empezarMover(p);
-  if (acc === 'quitar' && !confirm('¿Quitar esta parada de la ruta?')) return;
+  if (acc === 'quitar' && !p._confirmado) {
+    confirmar('¿Quitar esta parada?', (p.pedido ? '#' + p.pedido + ' · ' : '') + (p.cliente || '') + (p.direccion ? ' — ' + p.direccion : '') +
+      '. Sale de tu ruta de hoy.', 'Quitar', () => { p._confirmado = true; accionParada(id, 'quitar'); });
+    return;
+  }
+  delete p._confirmado;
   const estado = acc === 'quitar' ? 'quitada' : acc;
-  const antes = p.estado; p.estado = estado === 'quitada' ? antes : estado;   // marca optimista
+  // Optimista: se ve el cambio al instante y se guarda por detrás; si falla, vuelve como estaba.
+  const antes = S.paradas.slice(), estadoAntes = p.estado;
+  if (estado === 'quitada') { S.paradas = S.paradas.filter((x) => x.id !== id); if (S.sel === id) S.sel = null; }
+  else p.estado = estado;
   renderTodo();
+  if (estado === 'quitada') toast('Parada quitada', 'ok');
+  if (estado === 'entregada') { S.sel = null; toast('Entregada ✓', 'ok'); }
   api('actualizarParada', { id: id, estado: estado }, nuevoRid()).then((r) => {
-    if (!r.ok) { p.estado = antes; renderTodo(); toast(r.error, 'err'); return; }
+    if (!r.ok) { S.paradas = antes; p.estado = estadoAntes; renderTodo(); toast(r.error, 'err'); return; }
     aplicarParadas(r.paradas);
-    if (estado === 'entregada') { S.sel = null; renderLista(); pintarParadas(); toast('Entregada ✓', 'ok'); }
-    if (estado === 'quitada') toast('Parada quitada');
-  }).catch((e) => { p.estado = antes; renderTodo(); toast(e.message, 'err'); });
+  }).catch((e) => { S.paradas = antes; p.estado = estadoAntes; renderTodo(); toast('No se guardó: ' + e.message, 'err'); });
+}
+
+// Confirmación dibujada en la página: confirm() del navegador no funciona dentro de Apps Script (devuelve «no» sin preguntar).
+function confirmar(titulo, texto, textoSi, alAceptar) {
+  $('#cf-tit').textContent = titulo; $('#cf-txt').textContent = texto; $('#cf-si').textContent = textoSi || 'Aceptar';
+  $('#cf-si').onclick = () => { $('#m-conf').classList.add('hidden'); alAceptar(); };
+  $('#m-conf').classList.remove('hidden');
 }
 
 // Con un enlace real: en el celular abre la app de Google Maps / Waze sin sacar al mensajero de esta página.
@@ -1428,6 +1453,9 @@ function cargarCamaras() {
 const ICONO_CAM = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B23A36" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3l2-3h8l2 3h3v13H3z"/><circle cx="12" cy="13" r="4"/></svg>';
 function pintarCamaras() {
   if (!capaCam) return;
+  const c = map.getCenter(), z = map.getZoom(), u = pintarCamaras._ult;
+  if (NAV.on && u && u.z === z && distM(u.lat, u.lng, c.lat, c.lng) < 250) return;
+  pintarCamaras._ult = { lat: c.lat, lng: c.lng, z: z };
   capaCam.clearLayers();
   const ver = S.verCamaras && map.getZoom() >= 13;
   $('#fab-cam').classList.toggle('on', S.verCamaras);
@@ -1523,18 +1551,25 @@ function ladoVista() {
   return Math.ceil(2 * Math.hypot(Y, (W / 2) / esc) + 80);
 }
 function aplicarVista() {
-  const on = NAV.on && S.siguiendo;
+  const on = NAV.on;
   const b = document.body, estaba = b.classList.contains('girando');
   if (on) {
     const lado = ladoVista();
     if (!estaba || b.style.getPropertyValue('--lado') !== lado + 'px') { b.style.setProperty('--lado', lado + 'px'); b.classList.add('girando'); map.invalidateSize({ pan: false }); }
+    // Mientras mira el mapa con el dedo el giro se congela donde estaba (si no, el mapa se le movería solo).
+    if (!S.siguiendo && estaba) { if (map.dragging) map.dragging.disable(); $('#nav-3d').textContent = NAV.vista3d ? '2D' : '3D'; return; }
     const rumbo = NAV.norteArriba || NAV.rumbo == null ? 0 : NAV.rumbo;
+    NAV.giroActual = rumbo;
     b.style.setProperty('--giro', (NAV.vista3d ? 'perspective(' + P3D.persp + 'px) rotateX(' + P3D.grados + 'deg) ' : '') + 'rotateZ(' + (-rumbo).toFixed(1) + 'deg)');
     if (map.dragging) map.dragging.disable();
+    if (map.touchZoom) map.touchZoom.disable();
+    if (map.doubleClickZoom) map.doubleClickZoom.disable();
   } else if (estaba) {
     const el = $('#map'); el.style.left = el.style.top = el.style.transformOrigin = '';
     b.classList.remove('girando'); map.invalidateSize({ pan: false });
     if (map.dragging) map.dragging.enable();
+    if (map.touchZoom) map.touchZoom.enable();
+    if (map.doubleClickZoom) map.doubleClickZoom.enable();
   }
   $('#nav-3d').textContent = NAV.vista3d ? '2D' : '3D';
 }
@@ -2023,11 +2058,38 @@ function conectarEventos() {
     S.siguiendo = true; $('#nav-centrar').classList.add('hidden'); aplicar3D(); seguirEnNav();
     $('#nav-3d').textContent = NAV.vista3d ? '2D' : '3D';
   });
-  // Girado o en 3D el mapa no se arrastra (el dedo iría torcido): el primer toque lo vuelve plano para poder mirar.
-  $('#map').addEventListener('pointerdown', () => {
+  // Con el mapa girado/inclinado Leaflet no sabe arrastrar (el dedo iría torcido): el arrastre y el pellizco
+  // se hacen aquí, pasando el movimiento del dedo a las coordenadas del mapa sin girar.
+  const dedos = new Map(); let pinza = null, movio = false;
+  $('#map').addEventListener('pointerdown', (e) => {
     if (!NAV.on || !document.body.classList.contains('girando')) return;
-    S.siguiendo = false; aplicarVista(); $('#nav-centrar').classList.remove('hidden');
+    dedos.set(e.pointerId, { x: e.clientX, y: e.clientY }); movio = false;
+    if (dedos.size === 2) {
+      const [a, b] = [...dedos.values()];
+      pinza = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: map.getZoom() };
+    }
   }, true);
+  window.addEventListener('pointermove', (e) => {
+    const prev = dedos.get(e.pointerId); if (!prev || !NAV.on) return;
+    const dx = e.clientX - prev.x, dy = e.clientY - prev.y;
+    dedos.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (!movio && Math.hypot(dx, dy) < 3 && !pinza) return;
+    if (!movio) { movio = true; S.siguiendo = false; $('#nav-centrar').classList.remove('hidden'); }
+    if (dedos.size >= 2 && pinza) {
+      const [a, b] = [...dedos.values()];
+      const z = Math.max(12, Math.min(19, Math.round(pinza.z + Math.log2(Math.hypot(a.x - b.x, a.y - b.y) / pinza.d))));
+      if (z !== map.getZoom()) map.setZoom(z, { animate: false });
+      return;
+    }
+    // El mapa está girado -rumbo en pantalla: el movimiento del dedo se lleva al mapa girándolo +rumbo.
+    // (Probado con el mapa girado de verdad; OJO: con la pestaña oculta la transición CSS se congela y las medidas engañan.)
+    const t = (NAV.giroActual || 0) * Math.PI / 180, inc = NAV.vista3d ? Math.cos(P3D.grados * Math.PI / 180) : 1;
+    const sy = dy / inc;   // en 3D lo vertical se ve achatado
+    const cx = dx * Math.cos(t) - sy * Math.sin(t), cy = dx * Math.sin(t) + sy * Math.cos(t);
+    map.panBy([-cx, -cy], { animate: false });
+  });
+  const soltarDedo = (e) => { dedos.delete(e.pointerId); if (dedos.size < 2) pinza = null; };
+  window.addEventListener('pointerup', soltarDedo); window.addEventListener('pointercancel', soltarDedo);
   window.addEventListener('resize', () => { if (NAV.on) aplicarVista(); });
   $('#nav-brujula').addEventListener('click', () => {
     NAV.norteArriba = !NAV.norteArriba; lsSet('norteArriba', NAV.norteArriba);
@@ -2057,7 +2119,7 @@ function conectarEventos() {
   $('#bk-revisar').addEventListener('click', revisarBukapp);
   $('#bk-atras').addEventListener('click', () => { $('#bk-paso2').classList.add('hidden'); $('#bk-paso1').classList.remove('hidden'); });
   $('#bk-cargar').addEventListener('click', cargarBukapp);
-  $('#mm-salir').addEventListener('click', () => { if (confirm('¿Cerrar sesión en este celular?')) salir(false); });
+  $('#mm-salir').addEventListener('click', () => { cerrarModales(); confirmar('¿Cerrar sesión?', 'Tendrás que volver a entrar con tu PIN.', 'Salir', () => salir(false)); });
   $$('.velo').forEach((v) => v.addEventListener('click', (e) => { if (e.target === v || e.target.closest('[data-cerrar]')) v.classList.add('hidden'); }));
 
   window.addEventListener('resize', () => { medirTop(); });
