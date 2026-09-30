@@ -1931,7 +1931,7 @@ function dibujarEdicion(lineas) {
 // Cada tarjeta de Bukapp, copiada como texto, queda así:
 //   Pedido #66061 / Envío asociado · 2 / Flujo ✓ / . SURTIMOS COSMÉTICOS /
 //   Medellín, Antioquia · CARRERA 54 # 46-71 GUAYAQUIL LOCAL 527 / 3004675257 / 19 item(s) · 1134 unidad(es) ...
-const BK_RUIDO = /^(env[ií]o asociado|flujo|prioridad|urgente|falta el peso|mensajeros?$|gu[ií]a$|r[oó]tulo$|marcar despachado|\d+\s*[ií]tem|[\d.,]+\s*kg$|seleccionar|por despachar|despachad|en ruta$|entregad|no entregad|reasignar|quitar$|\d+\s*cajas?\b|[★⭐☆]+$)/i;
+const BK_RUIDO = /^(env[ií]o asociado|flujo|prioridad|urgente|falta el peso|mensajeros?$|gu[ií]a$|r[oó]tulo$|marcar despachado|\d+\s*[ií]tem|[\d.,]+\s*kg$|seleccionar|por despachar|despachad|en ruta$|entregad|no entregad|reasignar|quitar$|\d+\s*cajas?\b|[★⭐☆]+$|ola\s*#?\s*\d+|pos\.?\s*[a-z]?\d|posici[oó]n)/i;
 // Pantalla «Entregas › En ruta»: cada tarjeta termina en "1 caja · Juan Pablo Castaño" = quién lo lleva.
 const BK_MENSAJERO = /^\d+\s*cajas?\s*·\s*(.+)$/i;
 // La línea de ubicación viene en dos formatos (visto en sep-2026):
@@ -1945,13 +1945,22 @@ function lineaUbicacionBukapp(l) {
   const esDir = (x) => BK_VIA.test(x) || /#|\bn[o°º]\.?\s*\d|\d+\s*[-–]\s*\d+/i.test(x);
   const dirs = partes.filter(esDir), ciudades = partes.filter((x) => !/\d/.test(x) && x.length <= 50);
   if (!dirs.length || !ciudades.length) return null;
-  const muni = ciudades[0].replace(/,/g, ' ').replace(/\b(antioquia|colombia)\b/gi, '').replace(/\s+/g, ' ').trim();
-  return { municipio: muni, direccion: dirs[dirs.length - 1] };
+  // La ciudad es la parte que nombra un municipio o trae el departamento ("Medellín, Antioquia"). Puede venir antes
+  // otro texto sin números, como la sucursal ("DREY · Medellín, Antioquia · CALLE 112 # 76C-42"): ese va con la dirección.
+  const munis = ((S.config && S.config.municipios) || []).map((m) => sinTildesJs(m).toUpperCase());
+  const esCiudad = (x) => /antioquia|,/i.test(x) || munis.some((m) => sinTildesJs(x).toUpperCase().indexOf(m) >= 0);
+  const ciudad = ciudades.find(esCiudad) || ciudades[0];
+  const extra = ciudades.filter((x) => x !== ciudad && !esCiudad(x));
+  const muni = ciudad.replace(/,/g, ' ').replace(/\b(antioquia|colombia)\b/gi, '').replace(/\s+/g, ' ').trim();
+  return { municipio: muni, direccion: dirs[dirs.length - 1] + (extra.length ? ' (' + extra.join(' · ') + ')' : '') };
 }
+function sinTildesJs(x) { return String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 function parsearBukapp(texto) {
-  // "Pedido #66061" (Despachos) EN CUALQUIER PARTE (al copiar puede quedar la casilla ☐ u otra cosa antes), o
-  // "#67219" suelto al comienzo del renglón (Entregas): así no se confunde con el "#" de una dirección ("CRA 52A # 12-30").
-  const partes = String(texto || '').split(/(?:Pedido\s*#\s*|(?:^|\n)[^\S\n]*#\s*(?=\d{4}))(\d{3,9})\b/i), out = [], vistos = {};
+  // Se limpia lo invisible que a veces trae el copiar (espacios de ancho cero, espacios duros, "＃" ancho).
+  const limpio = String(texto || '').replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/\u00A0/g, ' ').replace(/＃/g, '#');
+  // Número de pedido: "Pedido #66061" o un "#" con 5+ dígitos EN CUALQUIER PARTE ("#67219" en Entregas). Las placas de
+  // las direcciones tienen 2-3 cifras ("CRA 52A # 12-30", "# 76C-42"), así que no se confunden.
+  const partes = limpio.split(/(?:Pedido\s*#\s*|#\s*(?=\d{5}))(\d{3,9})\b/i), out = [], vistos = {};
   for (let i = 1; i < partes.length; i += 2) {
     const num = partes[i], lineas = String(partes[i + 1] || '').split(/\r?\n/).map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
     let cliente = '', municipio = '', direccion = '', mensajero = '';
